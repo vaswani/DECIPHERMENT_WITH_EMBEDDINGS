@@ -33,8 +33,8 @@ namespace Eigen {
     }
 }
 
-namespace nplm
-{
+//namespace nplm
+//{
 
 void splitBySpace(const std::string &line, std::vector<std::string> &items);
 void readWordsFile(std::ifstream &TRAININ, std::vector<std::string> &word_list);
@@ -276,4 +276,4 @@ extern Timer timer;
 
 int setup_threads(int n_threads);
 
-} // namespace nplm
+//} // namespace nplm

@@ -1,11 +1,16 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
+#include "util.h"
+#include "reestimateMapping.h"
+
 using namespace Eigen;
 using namespace std;
+//using namespace nplm;
+using namespace boost::random;
 
 template<typename Derived>
-readWeights(string &embeddings_filename, Eigen::MatrixBase<Derived> &const_embeddings_matrix){
+void readWeights(string &embeddings_filename, Eigen::MatrixBase<Derived> &const_embeddings_matrix){
     ifstream embeddings_file(embeddings_filename.c_str());
     if (!embeddings_file) throw runtime_error("Could not open file " + embeddings_filename);
 	readMatrix(embeddings_file,const_embeddings_matrix);	
@@ -14,9 +19,36 @@ readWeights(string &embeddings_filename, Eigen::MatrixBase<Derived> &const_embed
 int main (int argc, char *argv[]) 
 {
 	Matrix<double,Dynamic,Dynamic> source_embeddings,target_embeddings;
-	source_embeddings.setZero(5000,25);
-	target_embeddings.setZero(5000,25);
-	source_embeddings_filename = "";
+	source_embeddings.setZero(5001,25);
+	target_embeddings.setZero(5001,25);
+	string source_embeddings_filename="vectors.s25.es";
+	string target_embeddings_filename="vectors.s25.en";
+	//Reading source and target embeddings
+	readWeights(source_embeddings_filename,source_embeddings);
+	readWeights(target_embeddings_filename,target_embeddings);
+	//Creating and reading the counts matrix
+	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
+	counts_matrix.setZero(5001,5001);
+	string counts_file = "ptable.es.1m-0.counts.final.ordered.array.es-en";
+	readWeights(counts_file,counts_matrix);
+	//Getting the source counts
+	Matrix<double,Dynamic,1> source_counts = counts_matrix.rowwise().sum();
+	//initialize the mapping Matrix
+	Matrix<double,Dynamic,Dynamic> M;
+	M.setZero(25,25);
+    //unsigned seed = std::time(0);
+    unsigned seed = 1234; //for testing only
+    mt19937 rng(seed);
+	initMatrix(rng, M, 1, 0.01);
+	Matrix<double,Dynamic,1> alphas;
 	
-	
+	reestimateMapping(base_distribution, 
+	counts_matrix,
+	source_counts,
+	alphas,
+	M,
+	source_embeddings,
+	target_embeddings,
+	0.001,
+	5);
 }

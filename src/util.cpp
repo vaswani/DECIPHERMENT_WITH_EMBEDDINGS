@@ -21,8 +21,8 @@ using namespace Eigen;
 using namespace std;
 using namespace boost::random;
 
-namespace nplm
-{
+//namespace nplm
+//{
 
 void splitBySpace(const std::string &line, std::vector<std::string> &items)
 {
@@ -203,4 +203,4 @@ int setup_threads(int n_threads)
     return n_threads;
 }
 
-} // namespace nplm
+//} // namespace nplm
