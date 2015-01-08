@@ -21,16 +21,21 @@ int main (int argc, char *argv[])
 	Matrix<double,Dynamic,Dynamic> source_embeddings,target_embeddings;
 	source_embeddings.setZero(5001,25);
 	target_embeddings.setZero(5001,25);
-	string source_embeddings_filename="vectors.s25.es";
-	string target_embeddings_filename="vectors.s25.en";
+	string source_embeddings_filename="vectors.s25.es.ordered";
+	string target_embeddings_filename="vectors.s25.en.ordered";
 	//Reading source and target embeddings
 	readWeights(source_embeddings_filename,source_embeddings);
+	cerr<<"Read source embeddings "<<endl;
 	readWeights(target_embeddings_filename,target_embeddings);
+	cerr<<"Read target embeddings "<<endl;
+	source_embeddings /= 10;
+	target_embeddings /= 10;
 	//Creating and reading the counts matrix
 	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
 	counts_matrix.setZero(5001,5001);
 	string counts_file = "dataptable.es.1m-0.counts.final.ordered.array.es-en";
 	readWeights(counts_file,counts_matrix);
+	cerr<<"Read counts "<<endl;
 	//Getting the source counts
 	Matrix<double,Dynamic,1> source_counts = counts_matrix.rowwise().sum();
 	//initialize the mapping Matrix
@@ -49,6 +54,6 @@ int main (int argc, char *argv[])
 	M,
 	source_embeddings,
 	target_embeddings,
-	0.001,
+	1.,
 	5);
 }
