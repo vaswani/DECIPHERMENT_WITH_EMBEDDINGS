@@ -1,7 +1,10 @@
 #include <algorithm>
 #include <fstream>
 #include <cmath>
-
+#include "maybe_omp.h"
+#ifdef EIGEN_USE_MKL_ALL
+#include <mkl.h>
+#endif
 //#include <boost/algorithm/string/join.hpp>
 //#include <boost/thread/thread.hpp>
 //#include <tclap/CmdLine.h>
@@ -42,8 +45,9 @@ int epochs) {
 	UNCONST(DerivedD,const_M,M);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-	double learning_rate = 0.01;
+	double learning_rate = 0.00001;
 	for (int epoch=0; epoch<epochs; epoch++){
+	    cerr<<"Epoch "<<epoch<<endl;
 		Matrix<double,Dynamic,Dynamic> M_gradient;
 		M_gradient.setZero(const_M.rows(),const_M.cols());
 		//cerr<<"digamma of 2 is "<<boost::math::digamma(2)<<endl;
@@ -53,12 +57,17 @@ int epochs) {
 			double exp_sum = 0.;
 			Matrix<double,Dynamic,1> affinity_scores;
 			affinity_scores.setZero(num_target_words);
+			//cerr<<"here1"<<endl;
 			for (int target_index=0; target_index<num_target_words; target_index++) {
 				affinity_scores(target_index) = exp((source_embeddings.row(source_index)*M).dot(target_embeddings.row(target_index)));
 				exp_sum += affinity_scores(target_index);
+				//cerr<<"affinity sore"<<affinity_scores(target_index)<<endl;
+				//cerr<<"exp sum is "<<exp_sum<<endl;
 			}
+			//cerr<<"exp sum is "<<exp_sum<<endl;
 			double sum_digamma_diff = boost::math::digamma(exp_sum) - boost::math::digamma(exp_sum-source_counts(source_index));
 			objective_function_value += boost::math::lgamma(exp_sum) - boost::math::digamma(exp_sum-source_counts(source_index));
+			//cerr<<"here 2"<<endl;
 			for (int target_index=0; target_index<num_target_words; target_index++){
 				Matrix<double,Dynamic,Dynamic> outer_product = source_embeddings.row(source_index).transpose()*target_embeddings.row(target_index);
 				//double weight = exp((source_embeddings(source_index)*M).dot(target_embeddings(target_index)));
@@ -78,6 +87,9 @@ int epochs) {
 		//Now to update the weights. 
 		Matrix<double,Dynamic,Dynamic> reg_gradient = reg_lambda*(M.array().square()).matrix();
 		M += learning_rate*(M_gradient - reg_lambda*(M.array().square()).matrix());
+		//cerr<<"mapping matrix"<<endl;
+		//cerr<<M<<endl;
+		cerr<<"Objective function value before reg gradient is "<<objective_function_value<<endl;
 		objective_function_value -= reg_gradient.sum();
 		
 		cerr<<"Objective function value in epoch "<<epoch<<" was "<<objective_function_value<<endl;
