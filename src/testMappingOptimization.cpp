@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
 	//Creating and reading the counts matrix
 	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
 	counts_matrix.setZero(5001,5001);
-	string counts_file = "ptable.es.1m-0.counts.final.ordered.array.es-en";
+	string counts_file = "dataptable.es.1m-0.counts.final.ordered.array.es-en";
 	readWeights(counts_file,counts_matrix);
 	//Getting the source counts
 	Matrix<double,Dynamic,1> source_counts = counts_matrix.rowwise().sum();
