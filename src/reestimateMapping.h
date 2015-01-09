@@ -32,10 +32,10 @@ using namespace boost;
 #define UNCONST(t,c,uc) Eigen::MatrixBase<t> &uc = const_cast<Eigen::MatrixBase<t>&>(c);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD, typename DerivedE>
-void reestimateMapping(const MatrixBase<DerivedA> &base_distribution, 
+void reestimateMapping(const MatrixBase<DerivedA> &const_base_distribution, 
 const MatrixBase<DerivedB> &source_target_counts,
 const MatrixBase<DerivedC> &source_counts,
-const MatrixBase<DerivedC> &alphas,
+const MatrixBase<DerivedC> &const_alphas,
 const MatrixBase<DerivedD> &const_M,
 const MatrixBase<DerivedE> &source_embeddings,
 const MatrixBase<DerivedE> &target_embeddings,
@@ -43,6 +43,8 @@ double reg_lambda,
 int epochs) {
 
 	UNCONST(DerivedD,const_M,M);
+	UNCONST(DerivedA,const_base_distribution, base_distribution);
+	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
 	double learning_rate = 0.00001;
@@ -60,10 +62,12 @@ int epochs) {
 			//cerr<<"here1"<<endl;
 			for (int target_index=0; target_index<num_target_words; target_index++) {
 				affinity_scores(target_index) = exp((source_embeddings.row(source_index)*M).dot(target_embeddings.row(target_index)));
+				base_distribution(source_index,target_index) = affinity_scores(target_index);
 				exp_sum += affinity_scores(target_index);
 				//cerr<<"affinity sore"<<affinity_scores(target_index)<<endl;
 				//cerr<<"exp sum is "<<exp_sum<<endl;
 			}
+			alphas(source_index) = exp_sum;
 			//cerr<<"exp sum is "<<exp_sum<<endl;
 			double sum_digamma_diff = boost::math::digamma(exp_sum) - boost::math::digamma(exp_sum-source_counts(source_index));
 			objective_function_value += boost::math::lgamma(exp_sum) - boost::math::digamma(exp_sum-source_counts(source_index));
@@ -96,6 +100,8 @@ int epochs) {
 		learning_rate = learning_rate*(epoch+1)/(epoch+2);
 		cerr<<"Learning rate is "<<learning_rate<<endl;
 	}
-	
+	//Now update the base distribution 
+	base_distribution.array() /= alphas.array(); 
+	cerr<<"sum of base distribution is"<<base_distribution.sum()<<endl;
 }
 							

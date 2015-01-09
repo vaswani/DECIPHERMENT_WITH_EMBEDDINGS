@@ -33,6 +33,7 @@ int main (int argc, char *argv[])
 	//Creating and reading the counts matrix
 	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
 	counts_matrix.setZero(5001,5001);
+	base_distribution.setZero(5001,5001);
 	string counts_file = "ptable.es.1m-0.counts.final.ordered.array.es-en";
 	readWeights(counts_file,counts_matrix);
 	cerr<<"Read counts "<<endl;
@@ -46,6 +47,7 @@ int main (int argc, char *argv[])
     mt19937 rng(seed);
 	initMatrix(rng, M, 1, 0.01);
 	Matrix<double,Dynamic,1> alphas;
+	alphas.setZero(5001);
 	
 	reestimateMapping(base_distribution, 
 	counts_matrix,
