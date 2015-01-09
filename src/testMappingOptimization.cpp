@@ -33,7 +33,7 @@ int main (int argc, char *argv[])
 	//Creating and reading the counts matrix
 	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
 	counts_matrix.setZero(5001,5001);
-	string counts_file = "dataptable.es.1m-0.counts.final.ordered.array.es-en";
+	string counts_file = "ptable.es.1m-0.counts.final.ordered.array.es-en";
 	readWeights(counts_file,counts_matrix);
 	cerr<<"Read counts "<<endl;
 	//Getting the source counts
