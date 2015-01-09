@@ -90,7 +90,7 @@ int epochs) {
 		
 		//Now to update the weights. 
 		Matrix<double,Dynamic,Dynamic> reg_gradient = reg_lambda*(M.array().square()).matrix();
-		M += learning_rate*(M_gradient - reg_lambda*(M.array().square()).matrix());
+		M += learning_rate*(M_gradient - reg_lambda*reg_gradient);
 		//cerr<<"mapping matrix"<<endl;
 		//cerr<<M<<endl;
 		cerr<<"Objective function value before reg gradient is "<<objective_function_value<<endl;
