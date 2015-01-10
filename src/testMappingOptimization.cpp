@@ -58,5 +58,5 @@ int main (int argc, char *argv[])
 	source_embeddings,
 	target_embeddings,
 	1.,
-	5);
+	20);
 }

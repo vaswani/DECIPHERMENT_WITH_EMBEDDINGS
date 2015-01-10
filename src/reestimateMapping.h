@@ -47,7 +47,7 @@ int epochs) {
 	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-	double learning_rate = 0.00001;
+	double learning_rate = 0.000001;
 	for (int epoch=0; epoch<epochs; epoch++){
 	    cerr<<"Epoch "<<epoch<<endl;
 		Matrix<double,Dynamic,Dynamic> M_gradient;
@@ -97,11 +97,14 @@ int epochs) {
 		objective_function_value -= reg_gradient.sum();
 		
 		cerr<<"Objective function value in epoch "<<epoch<<" was "<<objective_function_value<<endl;
-		learning_rate = learning_rate*(epoch+1)/(epoch+2);
+		//learning_rate = learning_rate*(epoch+1)/(epoch+2);
 		cerr<<"Learning rate is "<<learning_rate<<endl;
 	}
 	//Now update the base distribution 
-	base_distribution.array() /= alphas.array(); 
+	//base_distribution = base_distribution.rowwise() *(1/alphas.transpose().array()); 
+	for (int i=0; i<base_distribution.rows(); i++){
+	    base_distribution.row(i) = base_distribution.row(i)/alphas(i);
+	}
 	cerr<<"sum of base distribution is"<<base_distribution.sum()<<endl;
 }
 							
