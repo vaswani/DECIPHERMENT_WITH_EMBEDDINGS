@@ -7,7 +7,8 @@
 #include <string>
 
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/uniform_01.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/functional/hash.hpp>
@@ -83,7 +84,7 @@ inline void intgerize(std::vector<std::string> &ngram,std::vector<int> &int_ngra
 #define UNCONST(t,c,uc) Eigen::MatrixBase<t> &uc = const_cast<Eigen::MatrixBase<t>&>(c);
 
 template <typename Derived>
-void initMatrix(boost::random::mt19937 &engine,
+void initMatrix(boost::mt19937 &engine,
 		const Eigen::MatrixBase<Derived> &p_const,
 		bool init_normal, double range)
 {
@@ -91,7 +92,7 @@ void initMatrix(boost::random::mt19937 &engine,
     if (init_normal == 0)
      // initialize with uniform distribution in [-range, range]
     {
-        boost::random::uniform_real_distribution<> unif_real(-range, range); 
+        boost::uniform_real<> unif_real(-range, range); 
         for (int i = 0; i < p.rows(); i++)
         {
             for (int j = 0; j< p.cols(); j++)
@@ -104,19 +105,19 @@ void initMatrix(boost::random::mt19937 &engine,
     else 
       // initialize with gaussian distribution with mean 0 and stdev range
     {
-        boost::random::normal_distribution<double> unif_normal(0., range);
+        boost::normal_distribution<double> unif_normal(0., range);
         for (int i = 0; i < p.rows(); i++)
         {
             for (int j = 0; j < p.cols(); j++)
             {
-                p(i,j) = unif_normal(engine);    
+                p(i,j) = unif_normal(engine); 
             }
         }
     }
 }
 
 template <typename Derived>
-void initBias(boost::random::mt19937 &engine,
+void initBias(boost::mt19937 &engine,
 		const Eigen::MatrixBase<Derived> &p_const,
 		bool init_normal, double range)
 {
@@ -124,7 +125,7 @@ void initBias(boost::random::mt19937 &engine,
     if (init_normal == 0)
      // initialize with uniform distribution in [-range, range]
     {
-        boost::random::uniform_real_distribution<> unif_real(-range, range); 
+        boost::uniform_real<> unif_real(-range, range); 
         for (int i = 0; i < p.size(); i++)
         {
             p(i) = unif_real(engine);    
@@ -134,7 +135,7 @@ void initBias(boost::random::mt19937 &engine,
     else 
       // initialize with gaussian distribution with mean 0 and stdev range
     {
-        boost::random::normal_distribution<double> unif_normal(0., range);
+        boost::normal_distribution<double> unif_normal(0., range);
         for (int i = 0; i < p.size(); i++)
         {
             p(i) = unif_normal(engine);    
@@ -142,6 +143,49 @@ void initBias(boost::random::mt19937 &engine,
     }
 }
 
+
+template <typename Derived>
+void readMatrix(std::ifstream &TRAININ, Eigen::MatrixBase<Derived> &param_const, unsigned int* dis2con_map, unsigned int* con2dis_map)
+{
+    UNCONST(Derived, param_const, param);
+
+    int i = 0;
+    std::string line;
+    std::vector<std::string> fields;
+    
+    while (std::getline(TRAININ, line) && line != "")
+    {
+        splitBySpace(line, fields);
+	if (fields.size() != param.cols() + 1)
+	{
+	    std::ostringstream err;
+	    err << "error: wrong number of columns (expected " << param.cols() << ", found " << fields.size() << ")";
+	    throw std::runtime_error(err.str());
+	}
+	
+	if (i >= param.rows())
+	{
+	    std::ostringstream err;
+	    err << "error: wrong number of rows (expected " << param.rows() << ", found " << i << ")";
+	    throw std::runtime_error(err.str());
+	}
+        int old_id = atoi(fields[0].c_str());
+        dis2con_map[old_id] = i;
+        con2dis_map[i] = old_id;
+	for (int j=1; j<fields.size(); j++)
+	{    
+	    param(i,j - 1) = boost::lexical_cast<typename Derived::Scalar>(fields[j]);
+	}
+	i++;
+    }
+    
+    if (i != param.rows())
+    {
+        std::ostringstream err;
+	err << "error: wrong number of rows (expected " << param.rows() << ", found more)";
+	throw std::runtime_error(err.str());
+    }
+}
 
 template <typename Derived>
 void readMatrix(std::ifstream &TRAININ, Eigen::MatrixBase<Derived> &param_const)
