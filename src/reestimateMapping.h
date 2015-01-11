@@ -100,8 +100,6 @@ int epochs) {
 		learning_rate = learning_rate*(epoch+1)/(epoch+2);
 		cerr<<"Learning rate is "<<learning_rate<<endl;
 	}
-	//Now update the base distribution 
-	base_distribution.array() /= alphas.array(); 
-	cerr<<"sum of base distribution is"<<base_distribution.sum()<<endl;
+	base_distribution.array() /= alphas.array();
 }
 							
