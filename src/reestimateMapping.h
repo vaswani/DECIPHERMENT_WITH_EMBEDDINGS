@@ -47,7 +47,7 @@ int epochs) {
 	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-	double learning_rate = 0.000001;
+	double learning_rate = 0.0000001;
 	for (int epoch=0; epoch<epochs; epoch++){
 	    cerr<<"Epoch "<<epoch<<endl;
 		Matrix<double,Dynamic,Dynamic> M_gradient;
