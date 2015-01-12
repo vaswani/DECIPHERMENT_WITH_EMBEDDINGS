@@ -18,6 +18,7 @@ void readWeights(string &embeddings_filename, Eigen::MatrixBase<Derived> &const_
 
 int main (int argc, char *argv[]) 
 {
+	setup_threads(8);
 	Matrix<double,Dynamic,Dynamic> source_embeddings,target_embeddings;
 	source_embeddings.setZero(5001,25);
 	target_embeddings.setZero(5001,25);
@@ -57,5 +58,5 @@ int main (int argc, char *argv[])
 	source_embeddings,
 	target_embeddings,
 	1.,
-	5);
+	20);
 }
