@@ -72,7 +72,7 @@ int epochs) {
 			alphas(source_index) = exp_sum;
 			//cerr<<"exp sum is "<<exp_sum<<endl;
 			double sum_digamma_diff = boost::math::digamma(exp_sum) - boost::math::digamma(exp_sum+source_counts(source_index));
-			objective_function_value += boost::math::lgamma(exp_sum) - boost::math::digamma(exp_sum+source_counts(source_index));
+			objective_function_value += boost::math::lgamma(exp_sum) - boost::math::lgamma(exp_sum+source_counts(source_index));
 			//cerr<<"here 2"<<endl;
 			for (int target_index=0; target_index<num_target_words; target_index++){
 				Matrix<double,Dynamic,Dynamic> outer_product = source_embeddings.row(source_index).transpose()*target_embeddings.row(target_index);
