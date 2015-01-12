@@ -29,8 +29,8 @@ int main (int argc, char *argv[])
 	cerr<<"Read source embeddings "<<endl;
 	readWeights(target_embeddings_filename,target_embeddings);
 	cerr<<"Read target embeddings "<<endl;
-	source_embeddings = 10;
-	target_embeddings = 10;
+	//source_embeddings /= 10;
+	//target_embeddings /= 10;
 	//Creating and reading the counts matrix
 	Matrix<double,Dynamic,Dynamic> counts_matrix,base_distribution;
 	counts_matrix.setZero(5001,5001);
