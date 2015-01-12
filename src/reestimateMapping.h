@@ -47,7 +47,7 @@ int epochs) {
 	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-	double learning_rate = 0.1;
+	double learning_rate = 1.0;
 	long int total_counts = source_counts.sum();
     cerr<<"Total counuts is "<<total_counts<<endl;
 	for (int epoch=0; epoch<epochs; epoch++){
