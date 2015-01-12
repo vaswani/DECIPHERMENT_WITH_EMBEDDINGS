@@ -47,8 +47,7 @@ int epochs) {
 	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-
-	double learning_rate = 0.00001;
+	double learning_rate = 0.0000001;
 	long int total_counts = source_counts.sum();
 
 	for (int epoch=0; epoch<epochs; epoch++){
