@@ -48,6 +48,8 @@ int epochs) {
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
 	double learning_rate = 0.0000001;
+	long int total_counts = source_counts.sum();
+
 	for (int epoch=0; epoch<epochs; epoch++){
 	    cerr<<"Epoch "<<epoch<<endl;
 		Matrix<double,Dynamic,Dynamic> M_gradient;
@@ -87,10 +89,11 @@ int epochs) {
 				M_gradient += outer_product*weight;
 			}
 		}
-		
+		//Scaling the objective function value
+		objective_function_value /= total_counts;
 		//Now to update the weights. 
 		Matrix<double,Dynamic,Dynamic> reg_gradient = reg_lambda*(M.array().square()).matrix();
-		M += learning_rate*(M_gradient - reg_lambda*reg_gradient);
+		M += learning_rate*(M_gradient/total_counts - reg_lambda*reg_gradient);
 		//cerr<<"mapping matrix"<<endl;
 		//cerr<<M<<endl;
 		cerr<<"Objective function value before reg gradient is "<<objective_function_value<<endl;
@@ -101,10 +104,12 @@ int epochs) {
 		cerr<<"Learning rate is "<<learning_rate<<endl;
 	}
 	//Now update the base distribution 
+
 	//base_distribution = base_distribution.rowwise() *(1/alphas.transpose().array()); 
 	for (int i=0; i<base_distribution.rows(); i++){
 	    base_distribution.row(i) = base_distribution.row(i)/alphas(i);
 	}
+
 	cerr<<"sum of base distribution is"<<base_distribution.sum()<<endl;
 }
 							
