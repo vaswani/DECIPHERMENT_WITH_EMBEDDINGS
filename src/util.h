@@ -244,6 +244,22 @@ void readMatrix(const std::string &param_file, const Eigen::MatrixBase<Derived> 
     TRAININ.close();
 }
 
+
+template <typename Derived>
+void writeMatrix(const Eigen::MatrixBase<Derived> &param, std::ofstream &OUT)
+{
+    for (int row = 0;row < param.rows();row++)
+    {
+        int col;
+        for (col = 0;col < param.cols()-1;col++)
+        {
+            OUT<<param(row,col)<<"\t";
+        }
+        //dont want an extra tab at the end
+        OUT<<param(row,col)<<std::endl;
+    }
+}
+
 template <typename Derived>
 void writeMatrix(const Eigen::MatrixBase<Derived> &param, const std::string &filename)
 {
@@ -259,21 +275,6 @@ void writeMatrix(const Eigen::MatrixBase<Derived> &param, const std::string &fil
     }
     writeMatrix(param, OUT);
     OUT.close();
-}
-
-template <typename Derived>
-void writeMatrix(const Eigen::MatrixBase<Derived> &param, std::ofstream &OUT)
-{
-    for (int row = 0;row < param.rows();row++)
-    {
-        int col;
-        for (col = 0;col < param.cols()-1;col++)
-        {
-            OUT<<param(row,col)<<"\t";
-        }
-        //dont want an extra tab at the end
-        OUT<<param(row,col)<<std::endl;
-    }
 }
 
 template <typename Derived>
