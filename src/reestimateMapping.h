@@ -47,9 +47,9 @@ int epochs) {
 	UNCONST(DerivedC, const_alphas, alphas);
 	int num_source_words = source_embeddings.rows();
 	int num_target_words = target_embeddings.rows();
-	double learning_rate = 1.0;
+	double learning_rate = 10;
 	long int total_counts = source_counts.sum();
-    cerr<<"Total counuts is "<<total_counts<<endl;
+        cerr<<"Total counuts is "<<total_counts<<endl;
 	for (int epoch=0; epoch<epochs; epoch++){
 	    cerr<<"Epoch "<<epoch<<endl;
 		Matrix<double,Dynamic,Dynamic> M_gradient;
@@ -96,12 +96,12 @@ int epochs) {
 		M += learning_rate*(M_gradient/total_counts - reg_lambda*reg_gradient);
 		//cerr<<"mapping matrix"<<endl;
 		//cerr<<M<<endl;
-		cerr<<"Objective function value before reg gradient is "<<objective_function_value<<endl;
+		cout<<"Objective function value before reg gradient is "<<objective_function_value<<endl;
 		objective_function_value -= reg_gradient.sum();
 		
-		cerr<<"Objective function value in epoch "<<epoch<<" was "<<objective_function_value<<endl;
+		cout<<"Objective function value in epoch "<<epoch<<" was "<<objective_function_value<<endl;
 		//learning_rate = learning_rate*(epoch+1)/(epoch+2);
-		cerr<<"Learning rate is "<<learning_rate<<endl;
+		cout<<"Learning rate is "<<learning_rate<<endl;
 	}
 	//Now update the base distribution 
 
@@ -109,7 +109,6 @@ int epochs) {
 	for (int i=0; i<base_distribution.rows(); i++){
 	    base_distribution.row(i) = base_distribution.row(i)/alphas(i);
 	}
-
-	cerr<<"sum of base distribution is"<<base_distribution.sum()<<endl;
+	cout<<"sum of base distribution is"<<base_distribution.sum()<<endl;
 }
 							
