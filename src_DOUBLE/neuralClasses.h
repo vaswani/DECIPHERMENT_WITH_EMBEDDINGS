@@ -158,8 +158,8 @@ class Linear_layer
       // This used to be multithreaded, but there was no measureable difference
       if (L2_reg > 0.0)
       {
-          U_gradient -=  2*L2_reg*U_gradient;
-          b_gradient -= 2*L2_reg*b_gradient;
+          U_gradient -=  2*L2_reg*U;
+          b_gradient -= 2*L2_reg*b;
       }
       if (momentum > 0.0)
       {
