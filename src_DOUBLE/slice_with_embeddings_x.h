@@ -658,7 +658,7 @@ class Decipherment {
           }
           float ngram_prob = slice_cand_list[location + 1];
           float channel_prob = getChannelProb(new_hidden, observed);
-          if(ngram_prob * channel_prob >= threshold) {
+          if(ngram_prob * channel_prob > threshold) {
             exist_trans.members[new_hidden] = 1;
             exist_trans.member_list.push_back(new_hidden);
             return new_hidden;
@@ -681,7 +681,7 @@ class Decipherment {
           float channel_prob = getChannelProb(new_hidden, observed);
           score = pow(10, lm.get_ngram_prob(pre_hidden, new_hidden) +
                         lm.get_ngram_prob(new_hidden, post_hidden)) * channel_prob;
-          if(score >= threshold) {
+          if(score > threshold) {
             /*for(boost::unordered_set<unsigned int>::iterator itr = cand_to_remove.begin();
                 itr != cand_to_remove.end(); itr++) {
               exist_trans.members.erase(*itr);
@@ -712,7 +712,7 @@ class Decipherment {
         float channel_prob = getChannelProb(new_hidden, observed);
         score = pow(10, lm.get_ngram_prob(pre_hidden, new_hidden) +
                         lm.get_ngram_prob(new_hidden, post_hidden)) * channel_prob;
-        if(score >= threshold) {
+        if(score > threshold) {
           if(exist_trans.members.count(new_hidden) == 0) {
             exist_trans.members[new_hidden] = 1;
             exist_trans.member_list.push_back(new_hidden);
