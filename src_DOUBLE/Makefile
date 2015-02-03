@@ -32,6 +32,16 @@ BOOST_INC=$(BOOST)/include
 #EIGEN=../3rdparty
 EIGEN=/Users/avaswani/Research/GITHUB/NEURAL_LANGUAGE_MODEL_ISI/3rdparty
 
+TBB=../3rdparty/tbb
+
+TBB_INC=$(TBB)/include
+
+TBB_CFLAGS=-I$(TBB_INC)
+
+TBB_LDFLAGS=$(TBB)/lib/intel64/gcc4.1
+
+TBB_LDLIBS=-ltbb
+
 ### Optional libraries.
 
 # To disable multithreading, comment out the line below:
@@ -126,9 +136,9 @@ ifdef STATIC
   LDFLAGS+=-static
 endif
 
-ALL_CFLAGS=$(OMP_CFLAGS) $(MKL_CFLAGS) $(BOOST_CFLAGS) -I$(TCLAP) -I$(EIGEN) $(CFLAGS)
-ALL_LDFLAGS=$(OMP_LDFLAGS) $(MKL_LDFLAGS) $(BOOST_LDFLAGS) $(LDFLAGS)
-ALL_LDLIBS=$(MKL_LDLIBS) $(BOOST_LDLIBS)
+ALL_CFLAGS=$(OMP_CFLAGS) $(MKL_CFLAGS) $(BOOST_CFLAGS) $(TBB_CFLAGS) -I$(TCLAP) -I$(EIGEN) $(CFLAGS) 
+ALL_LDFLAGS=$(OMP_LDFLAGS) $(MKL_LDFLAGS) $(BOOST_LDFLAGS) $(LDFLAGS) $(TBB_LDFLAGS)
+ALL_LDLIBS=$(MKL_LDLIBS) $(BOOST_LDLIBS) $(TBB_LDLIBS)
 
 PYTHON_CFLAGS+=-I$(PYTHON_ROOT)/include/python$(PYTHON_VERSION)
 ifeq ($(OS),Darwin)
@@ -143,7 +153,8 @@ RANLIB=ranlib
 
 # Rules
 
-BINS=fast_align 
+#BINS=fast_align 
+BINS=slice_with_embeddings_para
 #LIBS=libnplm.a libnplm.so
 OBJS=util.o model.o
 
@@ -164,9 +175,13 @@ install: all
 shared/%.o: %.cpp
 	$(CXX) -c -fPIC $(ALL_CFLAGS) $< -o $@
 
-fast_align: fast_align.o $(OBJS)
+#fast_align: fast_align.o $(OBJS)
+#	$(CXX) $(ALL_LDFLAGS) $^ $(ALL_LDLIBS) -o $@
+	
+		
+slice_with_embeddings_para: slice_with_embeddings_para.o $(OBJS)
 	$(CXX) $(ALL_LDFLAGS) $^ $(ALL_LDLIBS) -o $@
-
+	
 	#src/fast_align.cc src/ttables.h src/da.h src/corpus.h
 
 #trainNeuralNetwork: trainNeuralNetwork.o $(OBJS)

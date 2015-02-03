@@ -218,6 +218,50 @@ double logsum(const Eigen::MatrixBase<Derived> &v)
 
 double logadd(double x, double y);
 
+template <typename Derived>
+void readMatrix(std::ifstream &TRAININ, Eigen::MatrixBase<Derived> &param_const, unsigned int* dis2con_map, unsigned int* con2dis_map)
+{
+    UNCONST(Derived, param_const, param);
+
+    int i = 0;
+    std::string line;
+    std::vector<std::string> fields;
+    
+    while (std::getline(TRAININ, line) && line != "")
+    {
+        splitBySpace(line, fields);
+	if (fields.size() != param.cols() + 1)
+	{
+	    std::ostringstream err;
+	    err << "error: wrong number of columns (expected " << param.cols() << ", found " << fields.size() << ")";
+	    throw std::runtime_error(err.str());
+	}
+	
+	if (i >= param.rows())
+	{
+	    std::ostringstream err;
+	    err << "error: wrong number of rows (expected " << param.rows() << ", found " << i << ")";
+	    throw std::runtime_error(err.str());
+	}
+        int old_id = atoi(fields[0].c_str());
+        dis2con_map[old_id] = i;
+        con2dis_map[i] = old_id;
+	for (int j=1; j<fields.size(); j++)
+	{    
+	    param(i,j - 1) = boost::lexical_cast<typename Derived::Scalar>(fields[j]);
+	}
+	i++;
+    }
+    
+    if (i != param.rows())
+    {
+        std::ostringstream err;
+	err << "error: wrong number of rows (expected " << param.rows() << ", found more)";
+	throw std::runtime_error(err.str());
+    }
+}
+
+
 #ifdef USE_CHRONO
 class Timer 
 {

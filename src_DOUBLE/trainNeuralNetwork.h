@@ -42,6 +42,7 @@ class neuralNetworkTrainer {
     //Matrix<int,Dynamic,Dynamic> scores;
 
   public :
+  
     neuralNetworkTrainer(param &myParam,
         mt19937 &rng,
         string input_embeddings_file,
