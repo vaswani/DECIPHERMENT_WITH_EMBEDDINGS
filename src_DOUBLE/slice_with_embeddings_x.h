@@ -194,7 +194,7 @@ class Decipherment {
     myParam.adagrad_epsilon = 0.001;
     myParam.minibatch_size = minibatch_size;
     myParam.validation_minibatch_size = validation_minibatch_size;
-    myParam.activation_function = "rectifier";
+    myParam.activation_function = "identity";
     myParam.loss_function = "nce";
     myParam.num_epochs=num_epochs;
     myParam.learning_rate=learning_rate;
