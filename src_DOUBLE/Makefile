@@ -1,9 +1,9 @@
 ### Compilation options.
 
 # C++ compiler. Tested with g++ and Intel icpc.
-CXX=/opt/local/bin/g++-mp-4.7
+#CXX=/opt/local/bin/g++-mp-4.7
 #CXX=icpc
-#CXX=/usr/bin/g++
+CXX=/usr/bin/g++
 
 
 # Compiler options. Note that -DEIGEN_NO_DEBUG is essential for good performance!
@@ -22,23 +22,23 @@ OS:=$(shell uname -s)
 ### Required libraries. You must install these prior to building.
 
 # Set this to the root directory of Boost (should have a subdirectory named boost):
-#BOOST=/usr/usc/boost/1.51.0
+BOOST=/usr/usc/boost/1.51.0
 #BOOST=/usr
-BOOST=/opt/local
+#BOOST=/home/nlg-02/qingdou/tools/boost
 # Where to find Boost header files
 BOOST_INC=$(BOOST)/include
 
 # Set this to the root directory of Eigen (should have a subdirectory named Eigen):
-#EIGEN=../3rdparty
-EIGEN=/Users/avaswani/Research/GITHUB/NEURAL_LANGUAGE_MODEL_ISI/3rdparty
+#EIGEN=../src/3rdparty
+EIGEN=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty
 
-TBB=../3rdparty/tbb
+TBB=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty/tbb
 
 TBB_INC=$(TBB)/include
 
 TBB_CFLAGS=-I$(TBB_INC)
 
-TBB_LDFLAGS=$(TBB)/lib
+TBB_LDFLAGS=-L$(TBB)/lib/intel64/gcc4.1
 
 TBB_LDLIBS=-ltbb
 
@@ -64,7 +64,7 @@ CYTHON=$(PYTHON_ROOT)/bin/cython
 # used for profiling
 #USE_CHRONO=1
 
-TCLAP=/Users/avaswani/Research/GITHUB/NEURAL_LANGUAGE_MODEL_ISI/3rdparty/tclap/include
+TCLAP=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty/tclap/include
 
 # Currently, this is needed only if USE_CHRONO is defined:
 # Where to find Boost libraries
