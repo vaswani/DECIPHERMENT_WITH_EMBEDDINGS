@@ -69,7 +69,8 @@ class Linear_layer
       //U_running_gradient.setZero(rows, cols);
       //U_running_parameter_updates.setZero(rows, cols);
       //U_velocity.setZero(rows, cols);
-      b.resize(rows);
+      //b.resize(rows);
+	  b.setZero();
       b_gradient.setZero(rows);
       //b_running_gradient.resize(rows);
       //b_velocity.resize(rows);
@@ -100,7 +101,7 @@ class Linear_layer
       }
 
 	    initMatrix(engine, U, init_normal, init_range);
-      initBias(engine, b, init_normal, init_range);
+        initBias(engine, b, init_normal, init_range);
 	}	  
 
 	int n_inputs () const { return U.cols(); }
@@ -345,7 +346,9 @@ class Output_word_embeddings
         }
 
         initMatrix(engine, *W, init_normal, init_range);
-        b.fill(init_bias);
+		
+		//THE BIAS IS 0 NOW!!
+        //b.fill(init_bias);
     }
 
     int n_inputs () const { return W->cols(); }

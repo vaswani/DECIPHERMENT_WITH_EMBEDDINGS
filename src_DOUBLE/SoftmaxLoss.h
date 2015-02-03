@@ -40,34 +40,37 @@ inline std::string loss_function_to_string (loss_function_type f)
 struct SoftmaxLogLoss
 {
     template <typename DerivedI, typename DerivedW, typename DerivedO>
-    void fProp(const MatrixBase<DerivedI> &input, const MatrixBase<DerivedW> &output_words, const MatrixBase<DerivedO> &output_const, double &loss)
+    void fProp(const MatrixBase<DerivedI> &input, 
+			const MatrixBase<DerivedW> &output_words, 
+			const MatrixBase<DerivedO> &output_const, 
+			double &loss)
     {
         UNCONST(DerivedO, output_const, output);
 
-	double log_likelihood = 0.0;
+		double log_likelihood = 0.0;
 
-        #pragma omp parallel for reduction(+:log_likelihood)
-	for (int train_id = 0; train_id < input.cols(); train_id++)
-	{
-	    double normalization = logsum(input.col(train_id));
-	    output.col(train_id).array() = input.col(train_id).array() - normalization;
-	    log_likelihood += output(output_words(train_id), train_id);
+	    #pragma omp parallel for reduction(+:log_likelihood)
+		for (int train_id = 0; train_id < input.cols(); train_id++)
+		{
+		    double normalization = logsum(input.col(train_id));
+		    output.col(train_id).array() = input.col(train_id).array() - normalization;
+		    log_likelihood += output(output_words(train_id), train_id);
+		}
+		loss = log_likelihood;
 	}
-	loss = log_likelihood;
-    }
 
     template <typename DerivedW, typename DerivedO, typename DerivedI>
     void bProp(const MatrixBase<DerivedW> &output_words, const MatrixBase<DerivedO> &output, const MatrixBase<DerivedI> &grad_input_const)
     {
-        UNCONST(DerivedI, grad_input_const, grad_input);
-        grad_input.setZero();
-        #pragma omp parallel for
-	for (int train_id = 0; train_id < output.cols(); train_id++)
-	{
-	    grad_input(output_words(train_id), train_id) += 1.;
-	    grad_input.col(train_id) -= output.col(train_id).array().exp().matrix();
+	        UNCONST(DerivedI, grad_input_const, grad_input);
+	        grad_input.setZero();
+	        #pragma omp parallel for
+		for (int train_id = 0; train_id < output.cols(); train_id++)
+		{
+		    grad_input(output_words(train_id), train_id) += 1.;
+		    grad_input.col(train_id) -= output.col(train_id).array().exp().matrix();
+		}
 	}
-    }
 };
 
 ///// Softmax layer plus NCE loss function.

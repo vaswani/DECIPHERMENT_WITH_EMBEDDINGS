@@ -38,7 +38,11 @@ TBB_INC=$(TBB)/include
 
 TBB_CFLAGS=-I$(TBB_INC)
 
+<<<<<<< HEAD
 TBB_LDFLAGS=-L$(TBB)/lib/intel64/gcc4.1
+=======
+TBB_LDFLAGS=-L$(TBB)/lib
+>>>>>>> 2ac2e331e5a88e95c3e7d5b3526f72c53810e092
 
 TBB_LDLIBS=-ltbb
 

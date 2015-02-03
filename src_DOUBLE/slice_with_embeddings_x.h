@@ -152,9 +152,9 @@ class Decipherment {
     readEmbeddings(plain_embeddings_file, plain_embeddings, plain_dis2con_map, plain_con2dis_map);
     readEmbeddings(cipher_embeddings_file, cipher_embeddings, cipher_dis2con_map, cipher_con2dis_map);
     base_distribution.setZero(5001, 5001);
-    plain_embeddings /= 10;
-    cipher_embeddings /= 10;
-    M.setZero(embedding_dimension, embedding_dimension);
+    //plain_embeddings /= 10;
+    //cipher_embeddings /= 10;
+    //M.setZero(embedding_dimension, embedding_dimension);
     boost::mt19937 rng(1234);
     initMatrix(rng, M, 1, 0.01);
     alphas.setOnes(5001);
@@ -316,6 +316,9 @@ class Decipherment {
           validation_data,
           int_gen[0],
           1);
+	  //COMPUTING THE BASE DISTRIBUTION
+	  trainer->getBaseDistribution(myParam,
+		  		base_distribution);
   } 
   
   void initBaseDistribution() {

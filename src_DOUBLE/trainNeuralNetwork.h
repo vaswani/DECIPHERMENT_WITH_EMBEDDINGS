@@ -128,7 +128,7 @@ class neuralNetworkTrainer {
 
       loss_function = string_to_loss_function(myParam.loss_function);
       cerr<<"Initialized the model"<<endl;
-      cerr<<"Minibatch size is "<<myParam.minibatch_size<<endl;
+      cerr<<"Mini-batch97 size is "<<myParam.minibatch_size<<endl;
       cerr<<"Validation minibatch size "<<myParam.validation_minibatch_size<<endl;
       this->prop = propagator(this->nn, myParam.minibatch_size);
       cerr<<"Created the propagator"<<endl;
@@ -262,6 +262,77 @@ class neuralNetworkTrainer {
 
     }
 	*/
+	
+	//To compute the base disctribution, all we have to do is create a matrix where the number of rows is equal to the input vocab size
+	//The first column will contain the plaintext id's from 0 to input vocab size (which is also the plaintext vocab size). The second column
+	//is just 0 because it doesn't matter what the target word is. We are interested int the distribution from the softmax. 
+	template <typename DerivedA>
+    void getBaseDistribution(param &myParam,
+		const MatrixBase<DerivedA> &const_base_distribution){			
+          double log_likelihood = 0.0;
+		  UNCONST(DerivedA, const_base_distribution, base_distribution);
+		  Matrix<int, Dynamic,Dynamic> plain_word_and_dummy_cipher_word;
+		  plain_word_and_dummy_cipher_word.setZero(myParam.ngram_size,myParam.input_vocab_size);
+		  for (int plain_id=0; plain_id<myParam.input_vocab_size; plain_id++){
+		  	plain_word_and_dummy_cipher_word(0,plain_id) =plain_id;
+			plain_word_and_dummy_cipher_word(1,plain_id) =0;
+		  }
+		  int validation_minibatch_size = 512;
+		  data_size_t validation_data_size = myParam.input_vocab_size;
+          Matrix<double,Dynamic,Dynamic> scores(myParam.output_vocab_size, validation_minibatch_size);
+          //Matrix<double,Dynamic,Dynamic> output_probs(output_vocab_size, validation_minibatch_size);
+          Matrix<int,Dynamic,Dynamic> minibatch(myParam.ngram_size, validation_minibatch_size);
+		  int num_validation_batches = (myParam.input_vocab_size-1)/myParam.validation_minibatch_size+1;
+		  
+          for (int validation_batch =0;validation_batch < num_validation_batches;validation_batch++)
+          {
+                int validation_minibatch_start_index = validation_minibatch_size * validation_batch;
+		        int current_minibatch_size = std::min(static_cast<data_size_t>(validation_minibatch_size),
+		                 validation_data_size - validation_minibatch_start_index);
+		        minibatch.leftCols(current_minibatch_size) = plain_word_and_dummy_cipher_word.middleCols(validation_minibatch_start_index, 
+		                          current_minibatch_size);
+		        prop_validation.fProp(minibatch.topRows(myParam.ngram_size-1));
+
+		        // Do full forward prop through output word embedding layer
+		        start_timer(4);
+		        #ifdef SINGLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.first_hidden_activation_node.fProp_matrix, scores);
+		        #endif
+				#ifdef DOUBLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.second_hidden_activation_node.fProp_matrix, scores);
+		        #endif
+				#ifdef TRIPLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.third_hidden_activation_node.fProp_matrix, scores);
+				#endif
+
+		        stop_timer(4);
+
+		        // And softmax and loss. Be careful of short minibatch
+		        double minibatch_log_likelihood;
+		        start_timer(5);
+		        SoftmaxLogLoss().fProp(scores.leftCols(current_minibatch_size), 
+		                   minibatch.row(myParam.ngram_size-1),
+						   base_distribution.middleCols(validation_minibatch_start_index, 
+						   	                          current_minibatch_size),
+		                   minibatch_log_likelihood);
+		        stop_timer(5);
+				//We don't need the log likelihood computation part
+				/*
+		        log_likelihood += minibatch_log_likelihood;
+		          }
+
+		                cerr << "Validation log-likelihood: "<< log_likelihood << endl;
+		                cerr << "           perplexity:     "<< exp(-log_likelihood/validation_data_size) << endl;
+
+		          // If the validation perplexity decreases, halve the learning rate.
+		          if (epoch > 0 && log_likelihood < current_validation_ll && myParam.parameter_update != "ADA")
+		          { 
+		              current_learning_rate /= 2;
+		          }
+		          current_validation_ll = log_likelihood;			
+	        	*/
+			}
+		}
 	
     template <typename DerivedA>
     void trainNN(param &myParam,
@@ -518,9 +589,10 @@ class neuralNetworkTrainer {
           //if (myParam.input_words_file != "")
           //    nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1), input_words, output_words);
           //else
-          nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1)+"."+lexical_cast<string>(outer_iteration));
+          //nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1)+"."+lexical_cast<string>(outer_iteration));
       }
-
+      //WE WANT TO GET THE MAPPING MATRIX AND THE BIASES. 
+	  
         if (epoch % 1 == 0 && validation_data_size > 0)
         {
             //////COMPUTING VALIDATION SET PERPLEXITY///////////////////////

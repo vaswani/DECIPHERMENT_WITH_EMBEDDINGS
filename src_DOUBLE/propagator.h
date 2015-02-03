@@ -78,6 +78,8 @@ public:
 				       output_layer_node.bProp_matrix);
 	stop_timer(7);
 	
+	/*
+	
 	start_timer(8);
   if (parameter_update == "SGD") {
     output_layer_node.param->computeGradient(second_hidden_activation_node.fProp_matrix,
@@ -100,7 +102,8 @@ public:
     std::cerr<<"Parameter update :"<<parameter_update<<" is unrecognized"<<std::endl;
   }
 	stop_timer(8);
-
+	*/
+	
 	bPropRest(data, 
       learning_rate,
       momentum,
@@ -123,41 +126,43 @@ public:
          double decay) 
     {
 
-        // Output embedding layer
+		//Since the input and output embeddings are fixed, we do NOT need to compute any gradients for those.
+		//At this point, there are no biases. 
 
         start_timer(7);
         output_layer_node.param->bProp(samples,
             weights, 
 				    output_layer_node.bProp_matrix);
-	stop_timer(7);
+		stop_timer(7);
 	
-
-	start_timer(8);
-  if (parameter_update == "SGD") {
-    output_layer_node.param->computeGradient(second_hidden_activation_node.fProp_matrix,
-               samples,
-               weights,
-               learning_rate,
-               momentum);
-  } else if (parameter_update == "ADA") {
-    output_layer_node.param->computeGradientAdagrad(second_hidden_activation_node.fProp_matrix,
-               samples,
-               weights,
-               learning_rate);
-  } else if (parameter_update == "ADAD") {
-    int current_minibatch_size = second_hidden_activation_node.fProp_matrix.cols();
-    //std::cerr<<"Adadelta gradient"<<endl;
-    output_layer_node.param->computeGradientAdadelta(second_hidden_activation_node.fProp_matrix,
-               samples,
-               weights,
-               1.0/current_minibatch_size,
-               conditioning_constant,
-               decay);
-  } else {
-    std::cerr<<"Parameter update :"<<parameter_update<<" is unrecognized"<<std::endl;
-  }
+		/*
+		start_timer(8);
+	  if (parameter_update == "SGD") {
+	    output_layer_node.param->computeGradient(second_hidden_activation_node.fProp_matrix,
+	               samples,
+	               weights,
+	               learning_rate,
+	               momentum);
+	  } else if (parameter_update == "ADA") {
+	    output_layer_node.param->computeGradientAdagrad(second_hidden_activation_node.fProp_matrix,
+	               samples,
+	               weights,
+	               learning_rate);
+	  } else if (parameter_update == "ADAD") {
+	    int current_minibatch_size = second_hidden_activation_node.fProp_matrix.cols();
+	    //std::cerr<<"Adadelta gradient"<<endl;
+	    output_layer_node.param->computeGradientAdadelta(second_hidden_activation_node.fProp_matrix,
+	               samples,
+	               weights,
+	               1.0/current_minibatch_size,
+	               conditioning_constant,
+	               decay);
+	  } else {
+	    std::cerr<<"Parameter update :"<<parameter_update<<" is unrecognized"<<std::endl;
+	  }
 
 	stop_timer(8);
+	*/
 
 	bPropRest(data,
       learning_rate,
@@ -331,6 +336,8 @@ private:
                 learning_rate, momentum, L2_reg);
     stop_timer(14);
 
+    /*
+	//DO NOT UPDATE THE INPUT WORD EMBEDDINGS
     // Input word embeddings
     
     start_timer(15);
@@ -338,6 +345,8 @@ private:
               data,
               learning_rate, momentum, L2_reg);
     stop_timer(15);
+	*/
+	
   } else if (parameter_update == "ADA") {
 
     #ifdef TRIPLE
@@ -366,15 +375,17 @@ private:
                 learning_rate,
                 L2_reg);
     stop_timer(14);
-
+	
+	//WE DO NOT HAVE TO UPDATE THE GRADIENTS FOR THE INPUT 
+    /*
     // Input word embeddings
-     
     start_timer(13);
     input_layer_node.param->computeGradientAdagrad(first_hidden_linear_node.bProp_matrix,
               data,
               learning_rate, 
               L2_reg);
     stop_timer(13);
+	*/
   } else if (parameter_update == "ADAD") {
     int current_minibatch_size = first_hidden_activation_node.fProp_matrix.cols();
     //std::cerr<<"Adadelta gradient"<<endl;
@@ -413,6 +424,8 @@ private:
     stop_timer(14);
 
     //std::cerr<<"Finished gradient for first hidden linear layer"<<std::endl;
+	/*
+	//NO NEED TO UPDATE THE INPUT WORD EMBEDDINGS
     // Input word embeddings
      
     start_timer(15);
@@ -423,7 +436,8 @@ private:
               conditioning_constant,
               decay);
     stop_timer(15);
-  
+  	*/
+	
     //std::cerr<<"Finished gradient for first input layer"<<std::endl;
   } else {
     std::cerr<<"Parameter update :"<<parameter_update<<" is unrecognized"<<std::endl;
