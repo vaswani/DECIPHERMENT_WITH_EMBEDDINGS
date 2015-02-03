@@ -79,7 +79,15 @@ public:
         double init_bias,
         string &parameter_udpate,
         double adagrad_epsilon);
-
+	
+	// Setting the embeddings 
+	template <typename DerivedA>
+	void set_input_output_embeddings(const MatrixBase<DerivedA> & input_embedding_matrix,
+					const MatrixBase<DerivedA> & output_embedding_matrix){
+		output_layer.set_W(&output_embedding_matrix);
+		input_layer.set_W(&input_embedding_matrix);
+	}
+	
     void set_activation_function(activation_function_type f)
     {
         activation_function = f;

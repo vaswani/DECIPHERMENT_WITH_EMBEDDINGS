@@ -88,21 +88,22 @@ class neuralNetworkTrainer {
     		if (!file) throw runtime_error("Could not open file " + input_embeddings_file);
 				nn.input_layer.read(file);
 				file.close();
-			}
-			if(output_embeddings_file != ""){
-				cerr<<"Reading output embeddings file"<<endl;
-				ifstream file(output_embeddings_file.c_str());
-    		if (!file) throw runtime_error("Could not open file " + output_embeddings_file);
-				nn.output_layer.read_weights(file);
-				file.close();
-			}
-			if(output_biases_file != ""){
-				cerr<<"Reading output biases file"<<endl;
-				ifstream file(output_biases_file.c_str());
-    		if (!file) throw runtime_error("Could not open file " + output_biases_file);
-				nn.output_layer.read_biases(file);
-				file.close();
-			}
+		}
+		if(output_embeddings_file != ""){
+			cerr<<"Reading output embeddings file"<<endl;
+			ifstream file(output_embeddings_file.c_str());
+			if (!file) throw runtime_error("Could not open file " + output_embeddings_file);
+			nn.output_layer.read_weights(file);
+			file.close();
+		}
+		
+		if(output_biases_file != ""){
+			cerr<<"Reading output biases file"<<endl;
+			ifstream file(output_biases_file.c_str());
+			if (!file) throw runtime_error("Could not open file " + output_biases_file);
+			nn.output_layer.read_biases(file);
+			file.close();
+		}
 
     }
       /*
@@ -568,7 +569,12 @@ class neuralNetworkTrainer {
         }
       }
     }
-
+	
+	template <typename DerivedA>
+	void set_input_output_embeddings(const MatrixBase<DerivedA> & input_embedding_matrix,
+					const MatrixBase<DerivedA> & output_embedding_matrix){
+		nn.set_input_output_embeddings(input_embedding_matrix,output_embedding_matrix);
+	}
 
 };
 
