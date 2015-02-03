@@ -38,7 +38,7 @@ TBB_INC=$(TBB)/include
 
 TBB_CFLAGS=-I$(TBB_INC)
 
-TBB_LDFLAGS=$(TBB)/lib
+TBB_LDFLAGS=-L$(TBB)/lib
 
 TBB_LDLIBS=-ltbb
 

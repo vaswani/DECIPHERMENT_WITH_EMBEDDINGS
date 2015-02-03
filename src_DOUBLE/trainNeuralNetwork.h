@@ -268,10 +268,7 @@ class neuralNetworkTrainer {
 	//is just 0 because it doesn't matter what the target word is. We are interested int the distribution from the softmax. 
 	template <typename DerivedA>
     void getBaseDistribution(param &myParam,
-		const MatrixBase<DerivedA> const_base_distribution, 
-       	int num_source_words,
-		int num_target_words){
-			
+		const MatrixBase<DerivedA> &const_base_distribution){			
           double log_likelihood = 0.0;
 		  UNCONST(DerivedA, const_base_distribution, base_distribution);
 		  Matrix<int, Dynamic,Dynamic> plain_word_and_dummy_cipher_word;
@@ -301,12 +298,12 @@ class neuralNetworkTrainer {
 		        #ifdef SINGLE
 		        prop_validation.output_layer_node.param->fProp(prop_validation.first_hidden_activation_node.fProp_matrix, scores);
 		        #endif
-						#ifdef DOUBLE
+				#ifdef DOUBLE
 		        prop_validation.output_layer_node.param->fProp(prop_validation.second_hidden_activation_node.fProp_matrix, scores);
 		        #endif
-						#ifdef TRIPLE
+				#ifdef TRIPLE
 		        prop_validation.output_layer_node.param->fProp(prop_validation.third_hidden_activation_node.fProp_matrix, scores);
-						#endif
+				#endif
 
 		        stop_timer(4);
 
@@ -592,9 +589,10 @@ class neuralNetworkTrainer {
           //if (myParam.input_words_file != "")
           //    nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1), input_words, output_words);
           //else
-          nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1)+"."+lexical_cast<string>(outer_iteration));
+          //nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1)+"."+lexical_cast<string>(outer_iteration));
       }
-
+      //WE WANT TO GET THE MAPPING MATRIX AND THE BIASES. 
+	  
         if (epoch % 1 == 0 && validation_data_size > 0)
         {
             //////COMPUTING VALIDATION SET PERPLEXITY///////////////////////
