@@ -272,10 +272,10 @@ class neuralNetworkTrainer {
           double log_likelihood = 0.0;
 		  UNCONST(DerivedA, const_base_distribution, base_distribution);
 		  Matrix<int, Dynamic,Dynamic> plain_word_and_dummy_cipher_word;
-		  plain_word_and_dummy_cipher_word.setZero(myParam.input_vocab_size,2);
+		  plain_word_and_dummy_cipher_word.setZero(myParam.ngram_size,myParam.input_vocab_size);
 		  for (int plain_id=0; plain_id<myParam.input_vocab_size; plain_id++){
-		  	plain_word_and_dummy_cipher_word(plain_id,0) =plain_id;
-			plain_word_and_dummy_cipher_word(plain_id,0) =0;
+		  	plain_word_and_dummy_cipher_word(0,plain_id) =plain_id;
+			plain_word_and_dummy_cipher_word(1,plain_id,0) =0;
 		  }
 		  int validation_minibatch_size = 512;
 		  data_size_t validation_data_size = myParam.input_vocab_size;
