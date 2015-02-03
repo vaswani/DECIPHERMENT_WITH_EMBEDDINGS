@@ -23,8 +23,14 @@
 #include "tbb/concurrent_hash_map.h"
 #include <Eigen/Dense>
 #include <Eigen/Core>
-#include "reestimateMapping.h"
-#include ""
+//#include "reestimateMapping.h"
+//#include "trainNeuralNetwork.h"
+#include "model.h"
+#include "propagator.h"
+#include "corpus.h"
+#include "trainNeuralNetwork.h"
+//#include ""
+#include "model.h"
 
 using namespace nplm;
 using namespace std;
@@ -87,7 +93,8 @@ class Decipherment {
   param myParam;
  
   // embedding parts
-  Matrix<double,Dynamic,Dynamic> counts_matrix, base_distribution,plain_embeddings,cipher_embeddings;
+  Matrix<double,Dynamic,Dynamic> counts_matrix;
+  Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> base_distribution,plain_embeddings,cipher_embeddings;
   unsigned int plain_dis2con_map[50000]; // map discontinuous word id to continuous word ids
   unsigned int plain_con2dis_map[5001]; // map continous word id to discontinuous
   unsigned int cipher_dis2con_map[50000];
@@ -172,7 +179,7 @@ class Decipherment {
 		
 	string input_embeddings_file = "";
 	string output_embeddings_file = "";
-	output_biases_file = "";
+	string output_biases_file = "";
 	
     myParam.ngram_size = ngram_size;
     myParam.input_vocab_size = input_vocab_size; //input_vocab_size;
@@ -213,7 +220,7 @@ class Decipherment {
 
     //unsigned seed = std::time(0);
     unsigned seed = 1234; //for testing only
-    mt19937 rng(seed);	
+    //mt19937 rng(seed);	
     trainer = new neuralNetworkTrainer(myParam,
     	int_gen[0],
   		input_embeddings_file,
@@ -284,13 +291,13 @@ class Decipherment {
       cipher_embeddings,
       0.001,
       opt_itr);
-	  *//
+	  */
 	  
 	  //FOR NOW, VALIDATION DATA IS EMPTY
 	  Matrix<int,Dynamic,Dynamic> validation_data;
 	  //CREATING THE TRAINING DATA
 	  vector<int> training_data_flat;
-	  long int training_datas_size = 0;
+	  long int training_data_size = 0;
 	  for (int plain_id = 0; plain_id < counts_matrix.rows(); plain_id ++) {
 		  for (int cipher_id=0; cipher_id < counts_matrix.cols(); cipher_id++){
 			  for (int times=0; times < counts_matrix(plain_id,cipher_id); times++){
@@ -301,7 +308,8 @@ class Decipherment {
 		  }
 	  }
 	  //Creating an Eigen MAP over the flat vector
-	  Matrix<int,Dyamic,Dynamic> training_data = Map< Matrix<int,Dynamic,Dynamic> >(training_data_flat.data(), 2, training_data_size);
+	  Matrix<int,Dynamic,Dynamic> training_data;
+	  training_data = Map< Matrix<int,Dynamic,Dynamic> >(training_data_flat.data(), 2, training_data_size);
 	  //We will callin the neural network trainer
       trainer->trainNN(myParam,
           training_data,

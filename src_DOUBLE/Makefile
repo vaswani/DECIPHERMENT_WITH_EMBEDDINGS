@@ -8,7 +8,7 @@ CXX=/opt/local/bin/g++-mp-4.7
 
 # Compiler options. Note that -DEIGEN_NO_DEBUG is essential for good performance!
 #CFLAGS=-g
-CFLAGS=-O3 -DDOUBLE -DEIGEN_NO_DEBUG  -DNDEBUG 
+CFLAGS=-O3 -DDOUBLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
 
 
 # Architecture. Set to x86_64 or i686 to override.
@@ -38,7 +38,7 @@ TBB_INC=$(TBB)/include
 
 TBB_CFLAGS=-I$(TBB_INC)
 
-TBB_LDFLAGS=$(TBB)/lib/intel64/gcc4.1
+TBB_LDFLAGS=$(TBB)/lib
 
 TBB_LDLIBS=-ltbb
 

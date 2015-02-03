@@ -144,6 +144,7 @@ class neuralNetworkTrainer {
       cerr<<"Finished creating the network..."<<endl;
     }
     
+	/*
     void createTestData(int_to_vector_map& src_word_to_nn_input_tuple,
         param& myParam) {
       cerr<<"Preparing the contexts for populating the probability table"<<endl;
@@ -160,6 +161,9 @@ class neuralNetworkTrainer {
         counter++;
       }
     }
+	*/
+	
+	/*
     //COMPUTING THE PROBABILITIES FROM THE NEURAL NETWORK
     //AND THEN POPULATING THE T-table
     void getContextScores(
@@ -247,14 +251,18 @@ class neuralNetworkTrainer {
         //cerr<<"fprop matrix dimensions are "<<prop_test.second_hidden_activation_node.fProp_matrix.leftCols(current_minibatch_size).rows()<<" "
         //  <<prop_test.second_hidden_activation_node.fProp_matrix.leftCols(current_minibatch_size).cols()<<endl;
         // Do full forward prop through output word embedding layer
-        /*
-        prop_test.output_layer_node.param->fProp(
-            prop_test.second_hidden_activation_node.fProp_matrix.leftCols(current_minibatch_size), 
-            scores.middleCols(minibatch_start_index, current_minibatch_size));
-        */      
+        
+		
+		
+        //prop_test.output_layer_node.param->fProp(
+        //    prop_test.second_hidden_activation_node.fProp_matrix.leftCols(current_minibatch_size), 
+        //    scores.middleCols(minibatch_start_index, current_minibatch_size));
+		
       }	
 
     }
+	*/
+	
     template <typename DerivedA>
     void trainNN(param &myParam,
         const MatrixBase<DerivedA> &training_data,
@@ -572,8 +580,8 @@ class neuralNetworkTrainer {
     }
 	
 	template <typename DerivedA>
-	void set_input_output_embeddings(const MatrixBase<DerivedA> & input_embedding_matrix,
-					const MatrixBase<DerivedA> & output_embedding_matrix){
+	void set_input_output_embeddings(MatrixBase<DerivedA> & input_embedding_matrix,
+					MatrixBase<DerivedA> & output_embedding_matrix){
 		nn.set_input_output_embeddings(input_embedding_matrix,output_embedding_matrix);
 	}
 

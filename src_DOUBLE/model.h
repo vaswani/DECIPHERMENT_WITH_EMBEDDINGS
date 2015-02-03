@@ -82,8 +82,8 @@ public:
 	
 	// Setting the embeddings 
 	template <typename DerivedA>
-	void set_input_output_embeddings(const MatrixBase<DerivedA> & input_embedding_matrix,
-					const MatrixBase<DerivedA> & output_embedding_matrix){
+	void set_input_output_embeddings( MatrixBase<DerivedA> &nput_embedding_matrix,
+					 MatrixBase<DerivedA> &output_embedding_matrix){
 		output_layer.set_W(&output_embedding_matrix);
 		input_layer.set_W(&input_embedding_matrix);
 	}
