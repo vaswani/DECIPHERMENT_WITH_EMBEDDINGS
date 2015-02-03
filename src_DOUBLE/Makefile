@@ -32,17 +32,15 @@ BOOST_INC=$(BOOST)/include
 #EIGEN=../src/3rdparty
 EIGEN=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty
 
+#TBB=../3rdparty/tbb
 TBB=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty/tbb
 
 TBB_INC=$(TBB)/include
 
 TBB_CFLAGS=-I$(TBB_INC)
 
-<<<<<<< HEAD
 TBB_LDFLAGS=-L$(TBB)/lib/intel64/gcc4.1
-=======
-TBB_LDFLAGS=-L$(TBB)/lib
->>>>>>> 2ac2e331e5a88e95c3e7d5b3526f72c53810e092
+#TBB_LDFLAGS=-L$(TBB)/lib
 
 TBB_LDLIBS=-ltbb
 
@@ -68,14 +66,15 @@ CYTHON=$(PYTHON_ROOT)/bin/cython
 # used for profiling
 #USE_CHRONO=1
 
+#TCLAP=/Users/avaswani/Research/GITHUB/NEURAL_LANGUAGE_MODEL_ISI/3rdparty/tclap/include
 TCLAP=/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/src/3rdparty/tclap/include
 
 # Currently, this is needed only if USE_CHRONO is defined:
 # Where to find Boost libraries
 BOOST_LIB=$(BOOST)/lib
 # On some systems, a suffix is appended for the multithreaded version.
-#BOOST_LIB_SUFFIX=
-BOOST_LIB_SUFFIX=-mt
+BOOST_LIB_SUFFIX=
+#BOOST_LIB_SUFFIX=-mt
 
 BOOST_CFLAGS=-I$(BOOST_INC)
 BOOST_LDFLAGS=
