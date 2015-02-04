@@ -7,9 +7,9 @@ CXX=/usr/bin/g++
 
 
 # Compiler options. Note that -DEIGEN_NO_DEBUG is essential for good performance!
-#CFLAGS=-g
+CFLAGS=-g -fpermissive
 #CFLAGS=-O3 -DDOUBLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
-CFLAGS=-O3 -DSINGLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
+#CFLAGS=-O3 -DSINGLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
 
 
 
