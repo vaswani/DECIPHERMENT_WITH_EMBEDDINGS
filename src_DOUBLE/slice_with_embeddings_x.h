@@ -122,7 +122,7 @@ class Decipherment {
  
 
   Decipherment(LM &dep_lm, unsigned int s, string base_file, string plain_embeddings_file, string cipher_embeddings_file, int dimension
-    , int opitr, int intv, float al, int uniform_base_scale, int num_threads):
+    , int opitr, int intv, float al, int uniform_base_scale, float lrate, int num_threads):
     lm(dep_lm),
     opt_itr(opitr),
     interval(intv),
@@ -173,7 +173,7 @@ class Decipherment {
 	int validation_minibatch_size = 512; //CLINE
 	int num_noise_samples = 1000; //CLINE
 	int test_minibatch_size = 256; //THIS IS FINE. WE CAN FIX THIS.
-	double learning_rate = 0.5; //CLINE
+	double learning_rate = lrate; //CLINE
 	int ngram_size = 2; //FIXED FOR DECIPHERMENT
 	int hidden_layer_size = 150; //CLINE
 		
@@ -195,7 +195,7 @@ class Decipherment {
     myParam.minibatch_size = minibatch_size;
     myParam.validation_minibatch_size = validation_minibatch_size;
     myParam.activation_function = "identity";
-    myParam.loss_function = "nce";
+    myParam.loss_function = "log";
     myParam.num_epochs=num_epochs;
     myParam.learning_rate=learning_rate;
     myParam.num_noise_samples=num_noise_samples;
@@ -309,6 +309,8 @@ class Decipherment {
           int j = i + int_distribution(rd_gen);
           training_data.col(j).swap(training_data.col(i));
         }
+        //writeMatrix(training_data, "training.dat");
+        //exit(0); 
           
 	  //We will callin the neural network trainer
       trainer->trainNN(myParam,
