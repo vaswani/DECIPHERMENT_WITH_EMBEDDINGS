@@ -273,21 +273,31 @@ class Decipherment {
   }*/
  
   void doMappingOptimization() {
-	  
-	  //FOR NOW, VALIDATION DATA IS EMPTY
-	  Matrix<int,Dynamic,Dynamic> validation_data;
-	  //CREATING THE TRAINING DATA
-	  vector<int> training_data_flat;
-	  long int training_data_size = 0;
-	  for (int plain_id = 0; plain_id < counts_matrix.rows(); plain_id ++) {
-		  for (int cipher_id=0; cipher_id < counts_matrix.cols(); cipher_id++){
-			  for (int times=0; times < counts_matrix(plain_id,cipher_id); times++){
-				  training_data_size++;
-				  training_data_flat.push_back(plain_id);
-				  training_data_flat.push_back(cipher_id);
-			  }
-		  }
-	  }
+
+      //FOR NOW, VALIDATION DATA IS EMPTY
+      Matrix<int,Dynamic,Dynamic> validation_data;
+      //CREATING THE TRAINING DATA
+      vector<int> training_data_flat;
+      long int training_data_size = 0;
+      cout << "collecting training data from counts matrix" << endl;
+      long mask = INT_MAX >> 1;
+      for(concurrent_hash_map<long,long>::iterator itr = counts.begin();
+           itr != counts.end(); itr++) {
+          long key = itr->first;
+          long token1 = key & mask;
+          long token0 = (key >> 30) & mask;
+          if(token0 != 0) {
+              int plain_id = plain_dis2con_map[token0];
+              int cipher_id = cipher_dis2con_map[token1];
+              long count = itr->second;
+              for (long times=0; times < count; times++){
+                  training_data_size++;
+                  training_data_flat.push_back(plain_id);
+                  training_data_flat.push_back(cipher_id);
+              }
+          }
+      }
+
 	//Creating an Eigen MAP over the flat vector
 	Matrix<int,Dynamic,Dynamic> training_data;
 	training_data = Map< Matrix<int,Dynamic,Dynamic> >(training_data_flat.data(), 2, training_data_size);
