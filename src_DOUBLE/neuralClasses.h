@@ -314,6 +314,9 @@ class Output_word_embeddings
     void set_W(Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> *input_W) {
       W = input_W;
     }
+	void copy_W(const Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &input_W){
+		*W = input_W;
+	}
     void read_weights(std::ifstream &W_file) { readMatrix(W_file, *W); }
     void write_weights(std::ofstream &W_file) { writeMatrix(*W, W_file); }
     void read_biases(std::ifstream &b_file) { readMatrix(b_file, b); }
@@ -727,6 +730,11 @@ class Input_word_embeddings
       void set_W(Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> *input_W) {
         W = input_W;
       }
+	  
+  	void copy_W(const Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &input_W){
+  		*W = input_W;
+  	}	  
+	  
 
       void resize(int rows, int cols, int context)
       {

@@ -652,9 +652,10 @@ class neuralNetworkTrainer {
       }
     }
 	
-	template <typename DerivedA>
-	void set_input_output_embeddings(MatrixBase<DerivedA> & input_embedding_matrix,
-					MatrixBase<DerivedA> & output_embedding_matrix){
+	//template <typename DerivedA>
+
+	void set_input_output_embeddings( Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &input_embedding_matrix,
+					 Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &output_embedding_matrix){
 		nn.set_input_output_embeddings(input_embedding_matrix,output_embedding_matrix);
 	}
 
