@@ -277,8 +277,8 @@ class neuralNetworkTrainer {
 		  	plain_word_and_dummy_cipher_word(0,plain_id) =plain_id;
 			plain_word_and_dummy_cipher_word(1,plain_id) =0;
 		  }
-		  int validation_minibatch_size = 512;
-		  myParam.validation_minibatch_size = validation_minibatch_size;
+		  int validation_minibatch_size = myParam.validation_minibatch_size;
+		  //myParam.validation_minibatch_size = validation_minibatch_size;
 		  data_size_t validation_data_size = myParam.input_vocab_size;
           Matrix<double,Dynamic,Dynamic> scores(myParam.output_vocab_size, validation_minibatch_size);
           //Matrix<double,Dynamic,Dynamic> output_probs(output_vocab_size, validation_minibatch_size);
@@ -593,7 +593,7 @@ class neuralNetworkTrainer {
           //nn.write(myParam.model_prefix + "." + lexical_cast<string>(epoch+1)+"."+lexical_cast<string>(outer_iteration));
       }
       //WE WANT TO GET THE MAPPING MATRIX AND THE BIASES. 
-	  
+	  /*
         if (epoch % 1 == 0 && validation_data_size > 0)
         {
             //////COMPUTING VALIDATION SET PERPLEXITY///////////////////////
@@ -605,42 +605,42 @@ class neuralNetworkTrainer {
           Matrix<double,Dynamic,Dynamic> output_probs(output_vocab_size, validation_minibatch_size);
           Matrix<int,Dynamic,Dynamic> minibatch(ngram_size, validation_minibatch_size);
 
-                for (int validation_batch =0;validation_batch < num_validation_batches;validation_batch++)
-                {
+	        for (int validation_batch =0;validation_batch < num_validation_batches;validation_batch++)
+	        {
                     int validation_minibatch_start_index = validation_minibatch_size * validation_batch;
-        int current_minibatch_size = std::min(static_cast<data_size_t>(validation_minibatch_size),
-                 validation_data_size - validation_minibatch_start_index);
-        minibatch.leftCols(current_minibatch_size) = validation_data.middleCols(validation_minibatch_start_index, 
-                          current_minibatch_size);
-        prop_validation.fProp(minibatch.topRows(ngram_size-1));
+		        int current_minibatch_size = std::min(static_cast<data_size_t>(validation_minibatch_size),
+		                 validation_data_size - validation_minibatch_start_index);
+		        minibatch.leftCols(current_minibatch_size) = validation_data.middleCols(validation_minibatch_start_index, 
+		                          current_minibatch_size);
+		        prop_validation.fProp(minibatch.topRows(ngram_size-1));
 
-        // Do full forward prop through output word embedding layer
-        start_timer(4);
-        #ifdef SINGLE
-        prop_validation.output_layer_node.param->fProp(prop_validation.first_hidden_activation_node.fProp_matrix, scores);
-        #endif
-				#ifdef DOUBLE
-        prop_validation.output_layer_node.param->fProp(prop_validation.second_hidden_activation_node.fProp_matrix, scores);
-        #endif
-				#ifdef TRIPLE
-        prop_validation.output_layer_node.param->fProp(prop_validation.third_hidden_activation_node.fProp_matrix, scores);
-				#endif
+		        // Do full forward prop through output word embedding layer
+		        start_timer(4);
+		        #ifdef SINGLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.first_hidden_activation_node.fProp_matrix, scores);
+		        #endif
+						#ifdef DOUBLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.second_hidden_activation_node.fProp_matrix, scores);
+		        #endif
+						#ifdef TRIPLE
+		        prop_validation.output_layer_node.param->fProp(prop_validation.third_hidden_activation_node.fProp_matrix, scores);
+						#endif
 
-        stop_timer(4);
+		        stop_timer(4);
 
-        // And softmax and loss. Be careful of short minibatch
-        double minibatch_log_likelihood;
-        start_timer(5);
-        SoftmaxLogLoss().fProp(scores.leftCols(current_minibatch_size), 
-                   minibatch.row(ngram_size-1),
-                   output_probs,
-                   minibatch_log_likelihood);
-        stop_timer(5);
-        log_likelihood += minibatch_log_likelihood;
+		        // And softmax and loss. Be careful of short minibatch
+		        double minibatch_log_likelihood;
+		        start_timer(5);
+		        SoftmaxLogLoss().fProp(scores.leftCols(current_minibatch_size), 
+		                   minibatch.row(ngram_size-1),
+		                   output_probs,
+		                   minibatch_log_likelihood);
+		        stop_timer(5);
+		        log_likelihood += minibatch_log_likelihood;
           }
 
-                cerr << "Validation log-likelihood: "<< log_likelihood << endl;
-                cerr << "           perplexity:     "<< exp(-log_likelihood/validation_data_size) << endl;
+          cerr << "Validation log-likelihood: "<< log_likelihood << endl;
+          cerr << "           perplexity:     "<< exp(-log_likelihood/validation_data_size) << endl;
 
           // If the validation perplexity decreases, halve the learning rate.
           if (epoch > 0 && log_likelihood < current_validation_ll && myParam.parameter_update != "ADA")
@@ -649,6 +649,7 @@ class neuralNetworkTrainer {
           }
           current_validation_ll = log_likelihood;
         }
+	  */
       }
     }
 	
