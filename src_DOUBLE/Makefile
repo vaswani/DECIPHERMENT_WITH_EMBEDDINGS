@@ -7,9 +7,9 @@ CXX=/usr/bin/g++
 
 
 # Compiler options. Note that -DEIGEN_NO_DEBUG is essential for good performance!
-#CFLAGS=-g
+CFLAGS=-g -fpermissive
 #CFLAGS=-O3 -DDOUBLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
-CFLAGS=-O3 -DSINGLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
+#CFLAGS=-O3 -DSINGLE -DEIGEN_NO_DEBUG  -DNDEBUG -fpermissive
 
 
 
@@ -52,7 +52,7 @@ TBB_LDLIBS=-ltbb
 OMP=1
 
 # To use the MKL library, uncomment the line below and set it to the MKL root:
-MKL=/usr/usc/intel/12.1.1/mkl
+#MKL=/usr/usc/intel/12.1.1/mkl
 # Set to 1 if you want to use the Single Dynamic Library; comment out otherwise.
 # This is required for building the Python extensions, but doesn't work with building a static binary.
 MKL_SINGLE=1

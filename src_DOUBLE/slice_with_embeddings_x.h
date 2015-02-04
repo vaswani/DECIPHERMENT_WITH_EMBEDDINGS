@@ -173,7 +173,7 @@ class Decipherment {
 	int validation_minibatch_size = 0; //CLINE
 	int num_noise_samples = 1000; //CLINE
 	int test_minibatch_size = 256; //THIS IS FINE. WE CAN FIX THIS.
-	double learning_rate = 1.; //CLINE
+	double learning_rate = 0.5; //CLINE
 	int ngram_size = 2; //FIXED FOR DECIPHERMENT
 	int hidden_layer_size = 150; //CLINE
 		
@@ -257,14 +257,7 @@ class Decipherment {
     return (((long)w1) << 30 | ((long)w2));
   } 
   
-  void buildCountsMatrix() {
-      /*counts_matrix.setZero(5001, 5001);
-      cout << "building counts matrix" << endl;
-      string counts_file_name = "/home/nlg-05/qingdou/GITHUB/DECIPHERMENT_WITH_EMBEDDINGS/ptable.es.1m-0.counts.final.ordered.array.es-en";
-      ifstream counts_file(counts_file_name.c_str());
-      if (!counts_file) throw runtime_error("Could not open file " + counts_file_name);
-          readMatrix(counts_file,counts_matrix); 
-      return;*/    
+  /*void buildCountsMatrix() {
 
      long mask = INT_MAX >> 1;
      counts_matrix.setZero(5001, 5001);
@@ -277,21 +270,9 @@ class Decipherment {
         counts_matrix(plain_dis2con_map[token0], cipher_dis2con_map[token1]) = (double)itr->second;
       }
     }       
-  }
+  }*/
  
   void doMappingOptimization() {
-      source_counts = counts_matrix.rowwise().sum();
-	  /*
-      reestimateMapping(base_distribution,
-      counts_matrix,
-      source_counts,
-      alphas,
-      M,
-      plain_embeddings,
-      cipher_embeddings,
-      0.001,
-      opt_itr);
-	  */
 	  
 	  //FOR NOW, VALIDATION DATA IS EMPTY
 	  Matrix<int,Dynamic,Dynamic> validation_data;
@@ -307,9 +288,18 @@ class Decipherment {
 			  }
 		  }
 	  }
-	  //Creating an Eigen MAP over the flat vector
-	  Matrix<int,Dynamic,Dynamic> training_data;
-	  training_data = Map< Matrix<int,Dynamic,Dynamic> >(training_data_flat.data(), 2, training_data_size);
+	//Creating an Eigen MAP over the flat vector
+	Matrix<int,Dynamic,Dynamic> training_data;
+	training_data = Map< Matrix<int,Dynamic,Dynamic> >(training_data_flat.data(), 2, training_data_size);
+        //Shuffle columns
+        long long n = training_data.cols();
+        boost::mt19937 rd_gen(time(0) + seed);
+        for (int i = 0; i < n; i++) {
+          boost::uniform_int<long long> int_distribution(0, n - i - 1);
+          int j = i + int_distribution(rd_gen);
+          training_data.col(j).swap(training_data.col(i));
+        }
+          
 	  //We will callin the neural network trainer
       trainer->trainNN(myParam,
           training_data,
@@ -326,8 +316,8 @@ class Decipherment {
       unsigned int pid, cid;      
       for(int i = 0; i < base_distribution.rows(); i++) {
           for(int j = 0; j < base_distribution.cols(); j++) {
-              pid = plain_con2dis_map[i];
-              cid = cipher_con2dis_map[j];
+              pid = plain_con2dis_map[j];
+              cid = cipher_con2dis_map[i];
               base_distribution(i, j) = uniform_base;
               base[(long)pid << 30 | cid] = uniform_base;
           }
@@ -344,8 +334,8 @@ class Decipherment {
       uniform_base = 1.0 / base_scale;
       for(int i = 0; i < base_distribution.rows(); i++) {
           for(int j = 0; j < base_distribution.cols(); j++) {
-              pid = plain_con2dis_map[i];
-              cid = cipher_con2dis_map[j];
+              pid = plain_con2dis_map[j];
+              cid = cipher_con2dis_map[i];
               if(base_distribution(i, j) >= uniform_base) {
                   if(channel_list[cid].members.count(pid) == 0) {
                       channel_list[cid].members[pid] = 1;

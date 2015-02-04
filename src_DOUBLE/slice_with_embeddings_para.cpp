@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
         }
         // update mapping matrix m
         if(i + interval < iteration){
-            cout << "building counts matrix" << endl;
-            decipherer.buildCountsMatrix();
+            //cout << "building counts matrix" << endl;
+            //decipherer.buildCountsMatrix();
             decipherer.doMappingOptimization();
             decipherer.updateCache();
         }
