@@ -81,11 +81,11 @@ public:
         double adagrad_epsilon);
 	
 	// Setting the embeddings 
-	template <typename DerivedA>
-	void set_input_output_embeddings( MatrixBase<DerivedA> &nput_embedding_matrix,
-					 MatrixBase<DerivedA> &output_embedding_matrix){
-		output_layer.set_W(&output_embedding_matrix);
-		input_layer.set_W(&input_embedding_matrix);
+		//template <typename DerivedA>
+	void set_input_output_embeddings( Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &input_embedding_matrix,
+					 Matrix<double,Dynamic,Dynamic,Eigen::RowMajor> &output_embedding_matrix){
+		output_layer.copy_W(output_embedding_matrix);
+		input_layer.copy_W(input_embedding_matrix);
 	}
 	
     void set_activation_function(activation_function_type f)
