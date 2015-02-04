@@ -278,6 +278,7 @@ class neuralNetworkTrainer {
 			plain_word_and_dummy_cipher_word(1,plain_id) =0;
 		  }
 		  int validation_minibatch_size = 512;
+		  myParam.validation_minibatch_size = validation_minibatch_size;
 		  data_size_t validation_data_size = myParam.input_vocab_size;
           Matrix<double,Dynamic,Dynamic> scores(myParam.output_vocab_size, validation_minibatch_size);
           //Matrix<double,Dynamic,Dynamic> output_probs(output_vocab_size, validation_minibatch_size);
