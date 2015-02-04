@@ -170,7 +170,7 @@ class Decipherment {
 	int output_embedding_dimension = dimension; //CLINE
 	int minibatch_size = 500; //CLINE
 	int num_epochs = 10; //CLINE
-	int validation_minibatch_size = 0; //CLINE
+	int validation_minibatch_size = 512; //CLINE
 	int num_noise_samples = 1000; //CLINE
 	int test_minibatch_size = 256; //THIS IS FINE. WE CAN FIX THIS.
 	double learning_rate = 0.5; //CLINE
