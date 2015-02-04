@@ -69,8 +69,8 @@ class Linear_layer
       //U_running_gradient.setZero(rows, cols);
       //U_running_parameter_updates.setZero(rows, cols);
       //U_velocity.setZero(rows, cols);
-      //b.resize(rows);
-	  b.setZero();
+      b.resize(rows);
+	  //b.setZero(rows);
       b_gradient.setZero(rows);
       //b_running_gradient.resize(rows);
       //b_velocity.resize(rows);
