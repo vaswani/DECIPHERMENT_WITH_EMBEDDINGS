@@ -31,9 +31,10 @@ int main(int argc, char** argv) {
     int interval = atoi(argv[12]);
     float alpha = atof(argv[13]);
     int base_scale = atoi(argv[14]);
+    float learning_rate = atof(argv[15]);
     int num_threads = atoi(argv[7]);
     Decipherment decipherer(test_lm, atoi(argv[5]), "/scratch/base", argv[8], argv[9], 
-    embedding_dimension, opt_itr, interval, alpha, base_scale, num_threads);
+    embedding_dimension, opt_itr, interval, alpha, base_scale, learning_rate, num_threads);
     decipherer.loadSeedTable(argv[6]);
     decipherer.loadSlice(argv[3]);
     decipherer.loadCipherBigrams(argv[4]);
