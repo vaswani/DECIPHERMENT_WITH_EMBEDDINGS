@@ -333,6 +333,7 @@ class Decipherment {
 	  //COMPUTING THE BASE DISTRIBUTION
 	  trainer->getBaseDistribution(myParam,
 		  		base_distribution);
+      writeMatrix(base_distribution, "base_distribution.tmp");
   } 
   
   void initBaseDistribution() {
