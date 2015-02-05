@@ -7,7 +7,7 @@
 #include <string>
 
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/functional/hash.hpp>
