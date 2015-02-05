@@ -271,6 +271,8 @@ class neuralNetworkTrainer {
 		const MatrixBase<DerivedA> &const_base_distribution){			
           double log_likelihood = 0.0;
 		  UNCONST(DerivedA, const_base_distribution, base_distribution);
+		  //cerr<<"Size of base distribution is "<<base_distribution.cols()<<" "<<base_distribution.rows()<<endl;
+		  //getchar();
 		  Matrix<int, Dynamic,Dynamic> plain_word_and_dummy_cipher_word;
 		  plain_word_and_dummy_cipher_word.setZero(myParam.ngram_size,myParam.input_vocab_size);
 		  for (int plain_id=0; plain_id<myParam.input_vocab_size; plain_id++){
@@ -284,7 +286,7 @@ class neuralNetworkTrainer {
           //Matrix<double,Dynamic,Dynamic> output_probs(output_vocab_size, validation_minibatch_size);
           Matrix<int,Dynamic,Dynamic> minibatch(myParam.ngram_size, validation_minibatch_size);
 		  int num_validation_batches = (myParam.input_vocab_size-1)/myParam.validation_minibatch_size+1;
-		  
+		  cerr<<"Number of validation minibatches is "<<num_validation_batches<<endl;
           for (int validation_batch =0;validation_batch < num_validation_batches;validation_batch++)
           {
                 int validation_minibatch_start_index = validation_minibatch_size * validation_batch;
@@ -293,7 +295,7 @@ class neuralNetworkTrainer {
 		        minibatch.leftCols(current_minibatch_size) = plain_word_and_dummy_cipher_word.middleCols(validation_minibatch_start_index, 
 		                          current_minibatch_size);
 		        prop_validation.fProp(minibatch.topRows(myParam.ngram_size-1));
-
+				//cerr<<"minibatch is "<<minibatch<<endl;
 		        // Do full forward prop through output word embedding layer
 		        start_timer(4);
 		        #ifdef SINGLE
@@ -317,11 +319,13 @@ class neuralNetworkTrainer {
 						   	                          current_minibatch_size),
 		                   minibatch_log_likelihood);
 		        stop_timer(5);
+				//cerr<<"Compute base distribution is "<<base_distribution.middleCols(validation_minibatch_start_index,
+				//                                                      current_minibatch_size)<<endl;
+				//getchar();
 				//We don't need the log likelihood computation part
+		        //log_likelihood += minibatch_log_likelihood;
+		   }
 				/*
-		        log_likelihood += minibatch_log_likelihood;
-		          }
-
 		                cerr << "Validation log-likelihood: "<< log_likelihood << endl;
 		                cerr << "           perplexity:     "<< exp(-log_likelihood/validation_data_size) << endl;
 
@@ -332,7 +336,20 @@ class neuralNetworkTrainer {
 		          }
 		          current_validation_ll = log_likelihood;			
 	        	*/
-			}
+		   //SINCE QING WANTS PROBABILITIES, I NEED TO EXP THEM.
+		   //cerr<<"The base distribution is "<<base_distribution<<endl;
+		   //getchar();
+		   //base_distribution = base_distribution.array().exp();
+		   for (int i=0; i<base_distribution.cols(); i++){
+		     for (int j=0; j<base_distribution.rows(); j++){
+			   //cerr<<"the value is "<<base_distribution(j,i);
+			   base_distribution(j,i) = exp(base_distribution(j,i));
+			 }
+			 //cerr<<"the col of base distribution is "<<base_distribution.col(i)<<endl;
+			 //getchar();
+		   }
+		   //cerr<<"the sum of the columns in the base distribution is "<<base_distribution.colwise().sum()<<endl;
+		   //getchar();
 		}
 	
     template <typename DerivedA>
