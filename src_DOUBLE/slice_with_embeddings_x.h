@@ -168,14 +168,14 @@ class Decipherment {
 	int output_vocab_size = 5001; //CLINE
 	int input_embedding_dimension = dimension; //CLINE
 	int output_embedding_dimension = dimension; //CLINE
-	int minibatch_size = 500; //CLINE
-	int num_epochs = 2; //CLINE
+	int minibatch_size = 5; //CLINE
+	int num_epochs = opitr;
 	int validation_minibatch_size = 512; //CLINE
 	int num_noise_samples = 1000; //CLINE
 	int test_minibatch_size = 256; //THIS IS FINE. WE CAN FIX THIS.
 	double learning_rate = lrate; //CLINE
 	int ngram_size = 2; //FIXED FOR DECIPHERMENT
-	int hidden_layer_size = 25 ; //CLINE
+	int hidden_layer_size = dimension;
 		
 	string input_embeddings_file = "";
 	string output_embeddings_file = "";
@@ -194,7 +194,7 @@ class Decipherment {
     myParam.adagrad_epsilon = 0.001;
     myParam.minibatch_size = minibatch_size;
     myParam.validation_minibatch_size = validation_minibatch_size;
-    myParam.activation_function = "rectifier";
+    myParam.activation_function = "identity";
     myParam.loss_function = "log";
     myParam.num_epochs=num_epochs;
     myParam.learning_rate=learning_rate;
@@ -202,6 +202,8 @@ class Decipherment {
     myParam.test_minibatch_size = test_minibatch_size;
     myParam.model_prefix = "nn";
     myParam.model_file = neural_network_model;
+    myParam.num_threads = 0;
+    myParam.num_threads = setup_threads(myParam.num_threads);
 	
     cerr<<"Printing neural network options..."<<endl;
     cerr<<"ngram size:"<<myParam.ngram_size<<endl;
@@ -228,29 +230,29 @@ class Decipherment {
   		output_biases_file);	
 
    //We need to scale the word embeddingsa
-   //plain_embeddings /= 25;
-   //cipher_embeddings /=25;
+   plain_embeddings /= 20;
+   cipher_embeddings /=20;
 
    //normalize the embeddings to be unit vectors
-   for (int cipher_id =0; cipher_id<cipher_embeddings.rows(); cipher_id++){
+   /*for (int cipher_id =0; cipher_id<cipher_embeddings.rows(); cipher_id++){
    	cipher_embeddings.row(cipher_id) /= cipher_embeddings.row(cipher_id).array().square().sum();
    }
    for (int plain_id =0; plain_id<plain_embeddings.rows(); plain_id++){
    	plain_embeddings.row(plain_id) /= plain_embeddings.row(plain_id).array().square().sum();
-   }
+   }*/
 
    //We need to set the word embeddings
    trainer->set_input_output_embeddings(plain_embeddings,
 	   					cipher_embeddings); 
 
-   /*
+   
    //TRAINING THE NEURAL NETWORK
-   trainNN(param &myParam,
+   /*trainNN(param &myParam,
 	    const MatrixBase<DerivedA> &training_data,
 	    const MatrixBase<DerivedA> &validation_data,
 	    mt19937 &rng,
-	    int outer_iteration)
-   */
+	    int outer_iteration)*/
+   
   }
 
   template<typename Derived>
@@ -333,7 +335,8 @@ class Decipherment {
 	  //COMPUTING THE BASE DISTRIBUTION
 	  trainer->getBaseDistribution(myParam,
 		  		base_distribution);
-      writeMatrix(base_distribution, "base_distribution.tmp");
+      cout << "sum of base_distribution: " << base_distribution.sum() << endl;
+      //writeMatrix(base_distribution, "base_distribution.tmp");
   } 
   
   void initBaseDistribution() {
