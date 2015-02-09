@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     }
     string tmp_dir = getenv("TMPDIR");
     decipherer.printTTable((tmp_dir + "/cipher.id.ptable.final").c_str());
-    decipherer.printBase(tmp_dir + "/base");
+    //decipherer.printBase(tmp_dir + "/base");
     //decipherer.printAccCounts((string("") + getenv("TMPDIR") + "/cipher.id.counts.final").c_str());
     return 0;
 }
