@@ -10,14 +10,14 @@
 #include <fstream>
 #include <string>
 #include <utility>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
+#include <boost-1.4/unordered_set.hpp>
+#include <boost-1.4/unordered_map.hpp>
 #include "lm.h"
 #include <math.h>
 #include <float.h>
 #include <limits.h>
 #include <queue> 
-#include <boost/random.hpp>
+#include <boost-1.4/random.hpp>
 #include <pthread.h>
 #include "util.h"
 #include "tbb/concurrent_hash_map.h"
@@ -55,6 +55,7 @@ class CountList{
     vector<unsigned int> member_list;
 };
 
+// candidates
 class Candidate{
   public:
   unsigned int token;
@@ -69,6 +70,7 @@ class Candidate{
     return (prob > c.prob);
   }
 };
+
 
 class Decipherment {
    
@@ -91,6 +93,9 @@ class Decipherment {
   string base_file_name; 
   neuralNetworkTrainer *trainer;
   param myParam;
+  double baseCutoffs[50000];
+  int topK;
+
  
   // embedding parts
   Matrix<double,Dynamic,Dynamic> counts_matrix;
@@ -132,11 +137,15 @@ class Decipherment {
     uniform_base = 1.0 / 5001;
     base_scale = uniform_base_scale;
     cout << "uniform base " << uniform_base << endl;
+    for(int i = 0; i < 50000; i++) {
+        baseCutoffs[i] = uniform_base;
+    }
     embedding_dimension = dimension;
     corpus_prob = 0;
     valid_embeddings = true;
     slice_list_size = 2000;
     last_iterations = 1000;
+    topK = 10;
     int_gen = new boost::mt19937[num_threads];
     flt_gen = new boost::mt19937[num_threads];
     int_vocab_distribution = new boost::uniform_int<int>[num_threads];
@@ -168,7 +177,7 @@ class Decipherment {
 	int output_vocab_size = 5001; //CLINE
 	int input_embedding_dimension = dimension; //CLINE
 	int output_embedding_dimension = dimension; //CLINE
-	int minibatch_size = 5; //CLINE
+	int minibatch_size = 2; //CLINE
 	int num_epochs = opitr;
 	int validation_minibatch_size = 512; //CLINE
 	int num_noise_samples = 1000; //CLINE
@@ -230,8 +239,8 @@ class Decipherment {
   		output_biases_file);	
 
    //We need to scale the word embeddingsa
-   plain_embeddings /= 20;
-   cipher_embeddings /=20;
+   plain_embeddings /= 10;
+   cipher_embeddings /=10;
 
    //normalize the embeddings to be unit vectors
    /*for (int cipher_id =0; cipher_id<cipher_embeddings.rows(); cipher_id++){
@@ -361,16 +370,31 @@ class Decipherment {
       unsigned int pid, cid;
       uniform_base = 1.0 / base_scale;
       for(int i = 0; i < base_distribution.rows(); i++) {
+          priority_queue<Candidate> pq; // keep top k P(f|e)
+          cid = cipher_con2dis_map[i];
           for(int j = 0; j < base_distribution.cols(); j++) {
               pid = plain_con2dis_map[j];
-              cid = cipher_con2dis_map[i];
-              if(base_distribution(i, j) >= uniform_base) {
+              float prob = base_distribution(i, j);
+              if(prob >= uniform_base) {
+                  Candidate c(pid, prob);
+                  pq.push(c);
+                  if(pq.size() > topK) {
+                      pq.pop();
+                  }
+              }
+              base[(long)pid << 30 | cid] = base_distribution(i, j);
+          }
+          baseCutoffs[cid] = uniform_base;
+          if(!pq.empty()){
+              baseCutoffs[cid] = pq.top().prob;
+              while(!pq.empty()) {
+                  pid = pq.top().token;
+                  pq.pop();
                   if(channel_list[cid].members.count(pid) == 0) {
                       channel_list[cid].members[pid] = 1;
                       channel_list[cid].member_list.push_back(pid); 
-                  }      
+                  }
               }
-              base[(long)pid << 30 | cid] = base_distribution(i, j);
           }
       }
   }
@@ -654,7 +678,7 @@ class Decipherment {
     double random_num = real_distribution[thread_id](flt_gen[thread_id]);
     float threshold = ngram_prob * channel_prob * random_num;
     unsigned int context = pre_hidden + post_hidden;
-    token_count++;
+    ++token_count;
     CountList& exist_trans = channel_list[observed];
     float* slice_cand_list = slice_list[context]; 
     int slice_cand_size = slice_list_size * 2;
@@ -664,11 +688,12 @@ class Decipherment {
       vector<unsigned int> candidates;
       int range1 = getCandidates(slice_cand_list, exist_trans.members, threshold, raw_channel, candidates);
       int range2 = exist_trans.member_list.size();
+      int last;
       int range = range1 + range2;
       int cand_index = 0;
       //boost::unordered_set<unsigned int> cand_to_remove;
       while(true) {
-        optr_count++;
+        ++optr_count;
         boost::uniform_int<int> int_cand_distribution(0, range - 1);
         cand_index = int_cand_distribution(int_gen[thread_id]);
         if(cand_index < range1) { // drop samples from set A: P(trigram)*prior > T
@@ -679,7 +704,7 @@ class Decipherment {
           }
           float ngram_prob = slice_cand_list[location + 1];
           float channel_prob = getChannelProb(new_hidden, observed);
-          if(ngram_prob * channel_prob > threshold) {
+          if(ngram_prob * channel_prob >= threshold) {
             exist_trans.members[new_hidden] = 1;
             exist_trans.member_list.push_back(new_hidden);
             return new_hidden;
@@ -688,44 +713,33 @@ class Decipherment {
           cand_index -= range1;
           unsigned int new_hidden = exist_trans.member_list[cand_index];
           if(new_hidden == hidden) {
-            /*for(boost::unordered_set<unsigned int>::iterator itr = cand_to_remove.begin();
-                itr != cand_to_remove.end(); itr++) {
-              exist_trans.members.erase(*itr);
-            }
-            exist_trans.member_list.clear();
-            for(boost::unordered_map<unsigned int,unsigned int>::iterator itr = exist_trans.members.begin();
-                itr != exist_trans.members.end(); itr++) {
-              exist_trans.member_list.push_back(itr->first);
-            }*/
             return new_hidden;
           } 
           float channel_prob = getChannelProb(new_hidden, observed);
           score = pow(10, lm.get_ngram_prob(pre_hidden, new_hidden) +
                         lm.get_ngram_prob(new_hidden, post_hidden)) * channel_prob;
-          if(score > threshold) {
-            /*for(boost::unordered_set<unsigned int>::iterator itr = cand_to_remove.begin();
-                itr != cand_to_remove.end(); itr++) {
-              exist_trans.members.erase(*itr);
-            }
-            exist_trans.member_list.clear();
-            for(boost::unordered_map<unsigned int,unsigned int>::iterator itr = exist_trans.members.begin();
-                itr != exist_trans.members.end(); itr++) {
-              exist_trans.member_list.push_back(itr->first);
-            }*/
+          if(score >= threshold) {
             return new_hidden;
           } 
           // remove obligated items
           long cand_pair = (long)new_hidden << 30 | observed;
-          if(counts.count(cand_pair) == 0 && base[cand_pair] < uniform_base) {
+          if(counts.count(cand_pair) == 0 && base[cand_pair] < baseCutoffs[observed]) {
             exist_trans.members.erase(new_hidden);
             exist_trans.member_list.erase(exist_trans.member_list.begin() + cand_index);
             --range;
-          }                 
+            --range2;
+          } else {
+            last = range2 - 1;
+            exist_trans.member_list[cand_index] = exist_trans.member_list[last];
+            exist_trans.member_list[last] = new_hidden;
+            --range;
+            --range2;
+          }          
         }
       }
     }else { // back off to slow mode when P(k)*prior > threshold
       while(true) { // while loop
-        optr_count++;
+        ++optr_count;
         unsigned int new_hidden = lm.hidden_vocab[int_vocab_distribution[thread_id](int_gen[thread_id])];
         if(new_hidden == hidden) {
           return new_hidden;
@@ -733,7 +747,7 @@ class Decipherment {
         float channel_prob = getChannelProb(new_hidden, observed);
         score = pow(10, lm.get_ngram_prob(pre_hidden, new_hidden) +
                         lm.get_ngram_prob(new_hidden, post_hidden)) * channel_prob;
-        if(score > threshold) {
+        if(score >= threshold) {
           if(exist_trans.members.count(new_hidden) == 0) {
             exist_trans.members[new_hidden] = 1;
             exist_trans.member_list.push_back(new_hidden);
