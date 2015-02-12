@@ -32,9 +32,12 @@ int main(int argc, char** argv) {
     float alpha = atof(argv[13]);
     int base_scale = atoi(argv[14]);
     float learning_rate = atof(argv[15]);
+    string act_func = argv[16];
+    string loss_func = argv[17];
+    int train_batch_size = atoi(argv[18]);
     int num_threads = atoi(argv[7]);
     Decipherment decipherer(test_lm, atoi(argv[5]), "/scratch/base", argv[8], argv[9], 
-    embedding_dimension, opt_itr, interval, alpha, base_scale, learning_rate, num_threads);
+    embedding_dimension, opt_itr, interval, alpha, base_scale, learning_rate, num_threads, act_func, loss_func, train_batch_size);
     decipherer.loadSeedTable(argv[6]);
     decipherer.loadSlice(argv[3]);
     decipherer.loadCipherBigrams(argv[4]);
@@ -64,7 +67,7 @@ int main(int argc, char** argv) {
     }
     string tmp_dir = getenv("TMPDIR");
     decipherer.printTTable((tmp_dir + "/cipher.id.ptable.final").c_str());
-    //decipherer.printBase(tmp_dir + "/base");
+    decipherer.printBase(tmp_dir + "/base");
     //decipherer.printAccCounts((string("") + getenv("TMPDIR") + "/cipher.id.counts.final").c_str());
     return 0;
 }
