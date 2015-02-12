@@ -104,8 +104,6 @@ class Decipherment {
   unsigned int plain_con2dis_map[5001]; // map continous word id to discontinuous
   unsigned int cipher_dis2con_map[50000];
   unsigned int cipher_con2dis_map[5001];
-  Matrix<double, Dynamic, 1> alphas, source_counts;
-  Matrix<double, Dynamic, Dynamic> M; // mapping weights matrix 
   int embedding_dimension; 
   int opt_itr;   // number of optimization itr
   int interval; // number of intervals between mapping matrix optimization
@@ -127,7 +125,7 @@ class Decipherment {
  
 
   Decipherment(LM &dep_lm, unsigned int s, string base_file, string plain_embeddings_file, string cipher_embeddings_file, int dimension
-    , int opitr, int intv, float al, int uniform_base_scale, float lrate, int num_threads):
+    , int opitr, int intv, float al, int uniform_base_scale, float lrate, int num_threads, string act_func, string loss_func, int train_batch_size):
     lm(dep_lm),
     opt_itr(opitr),
     interval(intv),
@@ -145,7 +143,7 @@ class Decipherment {
     valid_embeddings = true;
     slice_list_size = 2000;
     last_iterations = 1000;
-    topK = 10;
+    topK = 200;
     int_gen = new boost::mt19937[num_threads];
     flt_gen = new boost::mt19937[num_threads];
     int_vocab_distribution = new boost::uniform_int<int>[num_threads];
@@ -161,13 +159,8 @@ class Decipherment {
     readEmbeddings(plain_embeddings_file, plain_embeddings, plain_dis2con_map, plain_con2dis_map);
     readEmbeddings(cipher_embeddings_file, cipher_embeddings, cipher_dis2con_map, cipher_con2dis_map);
     base_distribution.setZero(5001, 5001);
-    //plain_embeddings /= 10;
-    //cipher_embeddings /= 10;
     //M.setZero(embedding_dimension, embedding_dimension);
     boost::mt19937 rng(1234);
-    initMatrix(rng, M, 1, 0.01);
-    alphas.setOnes(5001);
-    pthread_mutex_init(&hash_key_lock,0);
 	
 	//CREATING THE NN TRAINER
 	//INITIALIZING THE PARAMETERS
@@ -183,7 +176,7 @@ class Decipherment {
 	int num_noise_samples = 1000; //CLINE
 	int test_minibatch_size = 256; //THIS IS FINE. WE CAN FIX THIS.
 	double learning_rate = lrate; //CLINE
-	int ngram_size = 2; //FIXED FOR DECIPHERMENT
+	int ngram_size = train_batch_size; //FIXED FOR DECIPHERMENT
 	int hidden_layer_size = dimension;
 		
 	string input_embeddings_file = "";
@@ -203,8 +196,8 @@ class Decipherment {
     myParam.adagrad_epsilon = 0.001;
     myParam.minibatch_size = minibatch_size;
     myParam.validation_minibatch_size = validation_minibatch_size;
-    myParam.activation_function = "identity";
-    myParam.loss_function = "log";
+    myParam.activation_function = act_func;
+    myParam.loss_function = loss_func;
     myParam.num_epochs=num_epochs;
     myParam.learning_rate=learning_rate;
     myParam.num_noise_samples=num_noise_samples;
@@ -653,12 +646,12 @@ class Decipherment {
         initBaseDistribution();
     } else {
         //buildCountsMatrix();
-        //doMappingOptimization();
-        if(base_file_name == "") {
+        doMappingOptimization();
+        /*if(base_file_name == "") {
             cout << "base distribution missing, program exits" << endl; 
             exit(0); 
-        }
-        loadBaseFromFile(base_file_name);
+        }*/
+        //loadBaseFromFile(base_file_name);
         updateCache();        
     }
   }
@@ -723,18 +716,17 @@ class Decipherment {
           } 
           // remove obligated items
           long cand_pair = (long)new_hidden << 30 | observed;
-          if(counts.count(cand_pair) == 0 && base[cand_pair] < baseCutoffs[observed]) {
+          if(counts.count(cand_pair) == 0 /*&& base[cand_pair] < baseCutoffs[observed]*/) {
             exist_trans.members.erase(new_hidden);
             exist_trans.member_list.erase(exist_trans.member_list.begin() + cand_index);
             --range;
-            --range2;
-          } else {
+          } /*else {
             last = range2 - 1;
             exist_trans.member_list[cand_index] = exist_trans.member_list[last];
             exist_trans.member_list[last] = new_hidden;
             --range;
             --range2;
-          }          
+          }*/          
         }
       }
     }else { // back off to slow mode when P(k)*prior > threshold
